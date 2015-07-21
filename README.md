@@ -2,7 +2,8 @@
 
 Numerical inverse Laplace transform
 
-Example
+Example. Evaluate the inverse Laplace transform of `1/s^2` at
+`t=0.5`.
 ```julia
     ilt(s -> 1/s^2, 0.5)
 ```
