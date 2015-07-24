@@ -20,13 +20,8 @@ function ilt(func, t, M)
     return term * 2 / (5*t)
 end
 
-function ilt(func,t::Float64)
-    ilt(func,t,32)
-end
-
-function ilt(func,t::BigFloat)
-    ilt(func,t,64)
-end
+ilt(func,t::Float64) = ilt(func,t,32)
+ilt(func,t::BigFloat) = ilt(func,t,64)
 
 # Valkó, P.P. and Abate, J.
 # Comparison of Sequence Accelerators for the Gaver Method of Numerical Laplace Transform Inversion
@@ -76,13 +71,7 @@ function gwr(func, t, M)
     best
 end
 
-function gwr(func, t::Float64)
-    gwr(func,t,32)
-end
-
-function gwr(func, t::BigFloat)
-    gwr(func,t,80)
-end
-
+gwr(func, t::Float64) = gwr(func,t,32)
+gwr(func, t::BigFloat) = gwr(func,t,80)
 
 end # module
