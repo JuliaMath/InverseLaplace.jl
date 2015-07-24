@@ -7,6 +7,7 @@ export ilt, gwr
 # Abate, J. and Valkó, P.P.
 # Multi-precision Laplace transform inversion
 # International Journal for Numerical Methods in Engineering, Vol. 60 (Iss. 5-7)  2004  pp 979–993
+# Fixed Talbot method
 function ilt(func, t, M)
     bM = convert(typeof(t),M)    
     r = (2 * bM) / (5*t)
@@ -26,6 +27,7 @@ ilt(func,t::BigFloat) = ilt(func,t,64)
 # Valkó, P.P. and Abate, J.
 # Comparison of Sequence Accelerators for the Gaver Method of Numerical Laplace Transform Inversion
 # Computers and Mathematics with Application,  Vol. 48 (Iss.3-40) 2004 pp. 629-636
+# Gaver Wynn rho method
 function gwr(func, t, M)    
     Dt = typeof(t)
     bM = convert(Dt,M)
