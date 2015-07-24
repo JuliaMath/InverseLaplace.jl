@@ -1,4 +1,4 @@
-module ILT
+module InverseLaplace
 
 export ilt, gwr
 
