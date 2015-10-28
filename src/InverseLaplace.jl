@@ -21,7 +21,42 @@ function ilt(func, t, M)
     return term * 2 / (5*t)
 end
 
-ilt(func,t::Float64) = ilt(func,t,32)
+# Choose automatic numbers of terms. If BigFloat precision is larger
+# than default, increase the number of terms.
+#ilt(func,t::Float64) = ilt(func,t,32)
+ilt(func,t) = ilt(func,t,32)
+ilt(func,t::BigFloat) = ilt(func,t,64)
+
+# Operate on an array of values of t. A single function evaluation
+# f(s) is used for all t
+# This gives more inaccurate results the further values of
+# t are from tmax
+function ilt{T}(func, t::AbstractArray{T}, M)
+    tt = typeof(t[1])
+    bM = convert(tt,M)    
+    terms = similar(t)
+    tmax = maximum(t)
+    r = (2 * bM) / (5*tmax)
+    fr = (1//2) * func(r)
+    for j in 1:length(terms)
+        terms[j] =  exp(r*t[j]) * fr
+    end
+    for i in 1:M-1
+        theta = i * (pi/bM)
+        s = r*theta*(complex(cot(theta),one(theta)))
+        sigma = theta + (theta*cot(theta)-1)*cot(theta)
+        fs = complex(one(tt),sigma) * func(s)
+        for j in 1:length(terms)
+            terms[j] += real(exp(t[j]*s) * fs)
+        end
+    end
+    for j in 1:length(terms)
+        terms[j] *= 2/(5*tmax)
+    end
+    return terms
+end
+
+ilt{T}(func,t::AbstractArray{T}) = ilt(func,t,32)
 ilt(func,t::BigFloat) = ilt(func,t,64)
 
 # Valkó, P.P. and Abate, J.
