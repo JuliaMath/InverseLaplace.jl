@@ -9,7 +9,7 @@ export ilt, gwr
 # International Journal for Numerical Methods in Engineering, Vol. 60 (Iss. 5-7)  2004  pp 979–993
 # Fixed Talbot method
 function ilt(func, t, M)
-    bM = convert(typeof(t),M)    
+    bM = convert(typeof(t),M)
     r = (2 * bM) / (5*t)
     term = (1//2) * exp(r*t) * func(r)
     for i in 1:M-1
@@ -33,7 +33,7 @@ ilt(func,t::BigFloat) = ilt(func,t,64)
 # t are from tmax
 function ilt{T}(func, t::AbstractArray{T}, M)
     tt = typeof(t[1])
-    bM = convert(tt,M)    
+    bM = convert(tt,M)
     terms = similar(t)
     tmax = maximum(t)
     r = (2 * bM) / (5*tmax)
@@ -63,7 +63,7 @@ ilt(func,t::BigFloat) = ilt(func,t,64)
 # Comparison of Sequence Accelerators for the Gaver Method of Numerical Laplace Transform Inversion
 # Computers and Mathematics with Application,  Vol. 48 (Iss.3-40) 2004 pp. 629-636
 # Gaver Wynn rho method
-function gwr(func, t, M)    
+function gwr(func, t, M)
     Dt = typeof(t)
     bM = convert(Dt,M)
     tau = log(convert(Dt,2))/t
@@ -73,10 +73,10 @@ function gwr(func, t, M)
         Fi[i] = func(i * tau)
     end
     M1 = M
-    G0 = zeros(Dt,M1+1)    
+    G0 = zeros(Dt,M1+1)
     for n in 1:M
         sm = zero(Dt)
-        bn = convert(Dt,n)        
+        bn = convert(Dt,n)
         for i in 0:n
             bi = convert(Dt,i)
             sm += binomial(big(n),big(i)) * (-1)^i * Fi[n+i]
