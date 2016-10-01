@@ -8,6 +8,26 @@ export ilt, gwr
 # Multi-precision Laplace transform inversion
 # International Journal for Numerical Methods in Engineering, Vol. 60 (Iss. 5-7)  2004  pp 979–993
 # Fixed Talbot method
+
+"""
+    ilt(func::Function, t::AbstractFloat, M::Integer=32)
+
+Evaluate the inverse Laplace transform of `func` at the point `t`. Use `M` terms in the algorithm.
+For `typeof(t)` is `Float64`, the default for `M` is `32`. For `BigFloat` the default is `64`.
+
+If `BigFloat` precision is larger than default, try increasing `M`.
+
+# Example
+
+```jldoctest
+julia> ilt( s -> 1/s^3,  3)
+4.50000000000153
+```
+
+!!! note
+    This function uses the fixed Talbot method.
+    It evaluates `func` for complex arguments.
+"""
 function ilt(func, t, M)
     bM = convert(typeof(t),M)
     r = (2 * bM) / (5*t)
@@ -21,9 +41,6 @@ function ilt(func, t, M)
     return term * 2 / (5*t)
 end
 
-# Choose automatic numbers of terms. If BigFloat precision is larger
-# than default, increase the number of terms.
-#ilt(func,t::Float64) = ilt(func,t,32)
 ilt(func,t) = ilt(func,t,32)
 ilt(func,t::BigFloat) = ilt(func,t,64)
 
@@ -63,6 +80,26 @@ ilt(func,t::BigFloat) = ilt(func,t,64)
 # Comparison of Sequence Accelerators for the Gaver Method of Numerical Laplace Transform Inversion
 # Computers and Mathematics with Application,  Vol. 48 (Iss.3-40) 2004 pp. 629-636
 # Gaver Wynn rho method
+
+"""
+    gwr(func::Function, t::AbstractFloat, M::Integer=16)
+
+Evaluate the inverse Laplace transform of `func` at the point `t`. Use `M` terms in the algorithm.
+For `typeof(t)` is `Float64`, the default for `M` is `16`. For `BigFloat` the default is `64`.
+
+If `BigFloat` precision is larger than default, try increasing `M`.
+
+# Example
+
+```jldoctest
+julia> gwr( s -> 1/s^3,  3.0)
+4.499985907607361
+```
+
+!!! note
+    This function uses the Gaver-Wunn rho method.
+    It evaluates `func` only for real arguments.
+"""
 function gwr(func, t, M)
     Dt = typeof(t)
     bM = convert(Dt,M)
@@ -108,7 +145,7 @@ function gwr(func, t, M)
     best
 end
 
-gwr(func, t::Float64) = gwr(func,t,32)
-gwr(func, t::BigFloat) = gwr(func,t,80)
+gwr(func, t::Float64) = gwr(func,t,16)
+gwr(func, t::BigFloat) = gwr(func,t,64)
 
 end # module
