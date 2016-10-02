@@ -43,6 +43,9 @@ end
 
 ilt(func,t) = ilt(func,t,32)
 ilt(func,t::BigFloat) = ilt(func,t,64)
+ilt(func,t::Integer) = ilt(func,BigFloat(t))
+ilt(func,t::Rational) = ilt(func,BigFloat(t))
+
 
 # Operate on an array of values of t. A single function evaluation
 # f(s) is used for all t
@@ -73,8 +76,8 @@ function ilt{T}(func, t::AbstractArray{T}, M)
     return terms
 end
 
-ilt{T}(func,t::AbstractArray{T}) = ilt(func,t,32)
-ilt(func,t::BigFloat) = ilt(func,t,64)
+ilt(func,t::AbstractArray) = ilt(func,t,32)
+ilt(func,t::AbstractArray{BigFloat}) = ilt(func,t,64)
 
 # Valkó, P.P. and Abate, J.
 # Comparison of Sequence Accelerators for the Gaver Method of Numerical Laplace Transform Inversion
@@ -147,5 +150,7 @@ end
 
 gwr(func, t::Float64) = gwr(func,t,16)
 gwr(func, t::BigFloat) = gwr(func,t,64)
+gwr(func, t::Integer) = gwr(func,BigFloat(t))
+gwrt(func, t::Real) = gwr(func,float(t))
 
 end # module
