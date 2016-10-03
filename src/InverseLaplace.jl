@@ -151,6 +151,6 @@ end
 gwr(func, t::Float64) = gwr(func,t,16)
 gwr(func, t::BigFloat) = gwr(func,t,64)
 gwr(func, t::Integer) = gwr(func,BigFloat(t))
-gwrt(func, t::Real) = gwr(func,float(t))
+gwr(func, t::Real) = gwr(func,float(t))
 
 end # module
