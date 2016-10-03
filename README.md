@@ -3,7 +3,7 @@
 
 Linux, OSX: [![Build Status](https://travis-ci.org/jlapeyre/InverseLaplace.jl.svg)](https://travis-ci.org/jlapeyre/InverseLaplace.jl)
 [![Coverage Status](https://coveralls.io/repos/github/jlapeyre/InverseLaplace.jl/badge.svg)](https://coveralls.io/github/jlapeyre/InverseLaplace.jl)
-[![codecov.io](http://codecov.io/github/jlapeyre/InverseLaplace.jl/coverage.svg?branch=master)](http://codecov.io/github/jlapeyre/InverseLaplace.jl?branch=master)
+[![codecov](https://codecov.io/gh/jlapeyre/InverseLaplace.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/jlapeyre/InverseLaplace.jl)
 
 ### ilt
 
