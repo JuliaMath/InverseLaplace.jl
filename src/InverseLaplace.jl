@@ -15,7 +15,7 @@ export ilt, gwr
 Evaluate the inverse Laplace transform of `func` at the point `t`. Use `M` terms in the algorithm.
 For `typeof(t)` is `Float64`, the default for `M` is `32`. For `BigFloat` the default is `64`.
 
-If `BigFloat` precision is larger than default, try increasing `M`.
+If `BigFloat` precision is larger than default, try increasing `M`. `ilt is vectorized over `t`.
 
 # Example
 
@@ -43,15 +43,26 @@ end
 
 ilt(func,t) = ilt(func,t,32)
 ilt(func,t::BigFloat) = ilt(func,t,64)
-ilt(func,t::Integer) = ilt(func,BigFloat(t))
-ilt(func,t::Rational) = ilt(func,BigFloat(t))
+ilt(func,t::Integer,args...) = ilt(func,BigFloat(t),args...)
+# Hmm, at some point, one of these routines actually gave a Rational result. Don't recall how.
+# But, it can't be ilt.
+ilt(func,t::Rational,args...) = ilt(func,BigFloat(t),args...)
 
 
 # Operate on an array of values of t. A single function evaluation
 # f(s) is used for all t
 # This gives more inaccurate results the further values of
 # t are from tmax
-function ilt{T}(func, t::AbstractArray{T}, M)
+
+"""
+    iltarr{T}(func, ta::AbstractArray{T}, M)
+
+inverse laplace transform vectorized over `ta`. Each evaluation
+of `func(s)` is used for all elements of `ta`. This may be faster
+than a vectorized application of `ilt`, but is in general, less accurate.
+`iltarr` uses the "fixed" Talbot method.
+"""
+function iltarr{T}(func, t::AbstractArray{T}, M)
     tt = typeof(t[1])
     bM = convert(tt,M)
     terms = similar(t)
@@ -76,8 +87,8 @@ function ilt{T}(func, t::AbstractArray{T}, M)
     return terms
 end
 
-ilt(func,t::AbstractArray) = ilt(func,t,32)
-ilt(func,t::AbstractArray{BigFloat}) = ilt(func,t,64)
+iltarr(func,t::AbstractArray) = iltarr(func,t,32)
+iltarr(func,t::AbstractArray{BigFloat}) = iltarr(func,t,64)
 
 # Valkó, P.P. and Abate, J.
 # Comparison of Sequence Accelerators for the Gaver Method of Numerical Laplace Transform Inversion
@@ -150,7 +161,21 @@ end
 
 gwr(func, t::Float64) = gwr(func,t,16)
 gwr(func, t::BigFloat) = gwr(func,t,64)
-gwr(func, t::Integer) = gwr(func,BigFloat(t))
-gwr(func, t::Real) = gwr(func,float(t))
+gwr(func, t::Integer, args...) = gwr(func,BigFloat(t), args...)
+gwr(func, t::Rational, args...) = gwr(func,float(t), args...)
 
+for f in (:ilt, :gwr)
+
+@eval function $(f)(func, ta::AbstractArray, args...)
+    length(ta) == 0 && return similar(ta)
+    a1 = $(f)(func, ta[1], args...)
+    a = similar(Array{typeof(a1)},indices(ta))
+    for (i,t) in enumerate(ta)
+        a[i] = $(f)(func, t, args...)
+    end
+    a
+end
+
+end
+    
 end # module

@@ -27,6 +27,10 @@ Defaults are `32` for `Float64` and `64` for `BigFloat`.
 
 
 ### gwr
+    gwr(func::Function, t::AbstractFloat, M::Integer=16)
+
+Evaluate the inverse Laplace transform of `func` at the point `t`. Use `M` terms in the algorithm.
+For `typeof(t)` is `Float64`, the default for `M` is `16`. For `BigFloat` the default is `64`.
 
 `ilt` evaluates the function at complex values. The function `gwr` employs an algorithm
 that evaluates the function only for real values. `gwr` is called in the same way that
