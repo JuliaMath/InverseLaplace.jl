@@ -20,7 +20,13 @@ end
 @test_approx_eq( ilt(s -> 1/s^3,[.1,.2]) , [0.005,0.02])
 
 # gwr is often less accurate.
-@test_approx_eq_eps( gwr(s -> 1/s^3,[.1,.2]) , [0.005,0.02], 1e-10)
+
+if VERSION >= v"0.5.0"
+    @test_approx_eq_eps( gwr(s -> 1/s^3,[.1,.2]) , [0.005,0.02], 1e-10)
+else
+    @test_approx_eq_eps( gwr(s -> 1/s^3,[.1,.2]) , [0.005,0.02], 1e-7)
+end
+   
 @test_approx_eq( InverseLaplace.iltarr(s -> 1/s^3,[.1,.2]) , [0.005,0.02])
 
 @test_approx_eq( map(x -> convert(Float64,x) , ilt(s -> 1/s^3,[BigFloat(1//10) , BigFloat(2//10)])), [0.005,0.02])
