@@ -169,7 +169,7 @@ for f in (:ilt, :gwr)
 @eval function $(f)(func, ta::AbstractArray, args...)
     length(ta) == 0 && return similar(ta)
     a1 = $(f)(func, ta[1], args...)
-    a = similar(Array{typeof(a1)},indices(ta))
+    a = similar(ta,typeof(a1))
     for (i,t) in enumerate(ta)
         a[i] = $(f)(func, t, args...)
     end
