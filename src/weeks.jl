@@ -26,7 +26,6 @@ end
 
 (w::Weeks)(t) = eval_weeks(w,t)
 
-
 function _wcoeff(F,N,sig,b)
     n = -N:1:N-1
     h = pi/N
@@ -47,7 +46,8 @@ function laguerre(a::AbstractVector,x::AbstractVector)
     un = a[N+1]*ones(x)
     local unm1
     for n in N:-1:1
-        unm1 =  (1//n)*(2*n-1-x) .* un - n/(n+1)*unp1 + a[n]
+#        unm1 =  (1//n)*(2*n-1-x) .* un - n/(n+1)*unp1 + a[n]
+        unm1 =  [(1//n)*(2*n-1-x0) * un0 - n/(n+1)*unp10 + a[n] for (x0,un0,unp10) in zip(x,un,unp1)]
         unp1 = un
         un = unm1
     end
