@@ -1,5 +1,7 @@
 using Optim
 
+#### Weeks
+
 type Weeks <: AbstractILT
     func::Function
     Nterms::Int
@@ -26,6 +28,45 @@ end
 
 (w::Weeks)(t) = eval_weeks(w,t)
 
+#### WeeksErr
+
+type WeeksErr <: AbstractILT
+    func::Function
+    Nterms::Int
+    sigma::Float64
+    b::Float64
+    coefficients::Array{Float64,1}
+    sa1::Float64    
+    sa2::Float64
+end
+
+function WeeksErr(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0)
+    M = 2 * Nterms
+    a0 = real(_wcoeff(func,M,sigma,b))
+    a1 = a0[2*Nterms+1:3*Nterms]
+    sa1 = sum(abs(a1))
+    sa2 = sum(abs(@view a0[3*Nterms+1:4*Nterms]))
+    WeeksErr(func,Nterms,sigma,b,a1,sa1,sa2)
+end
+
+function eval_weeks(w::WeeksErr, t)
+    L = laguerre(w.coefficients,2*w.b*t) 
+    f = L * exp((w.sigma-w.b)*t)
+    est = exp(w.sigma*t)*(w.sa2+eps()*w.sa1)
+    (f,est)
+end
+
+function eval_weeks(w::WeeksErr, t::AbstractVector)
+    L = laguerre(w.coefficients,2*w.b*t) 
+    f = L .* exp((w.sigma-w.b)*t)
+    est = exp(w.sigma*t)*(w.sa2+eps()*w.sa1)
+    (f,est)
+end
+
+(w::WeeksErr)(t) = eval_weeks(w,t)
+
+#####
+
 function _wcoeff(F,N,sig,b)
     n = -N:1:N-1
     h = pi/N
@@ -35,7 +76,6 @@ function _wcoeff(F,N,sig,b)
     s = sig +  imunit * y
     FF0 = map(F, s)
     FF = [ FF1 * (b + imunit * y1) for (FF1,y1) in zip(FF0,y)]
-#    FF = FF0 .* (b+imunit*y)
     a = fftshift(fft(fftshift(FF)))/(2*N)
     exp(Complex(zero(h),-one(h)) * n*h/2) .* a
 end
