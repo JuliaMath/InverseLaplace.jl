@@ -29,7 +29,7 @@ _set_coefficients(w::Weeks) = (w.coefficients = _get_coefficients(w))
    w::Weeks = Weeks(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0)
 
 return `w`, which estimates the inverse Laplace transform of `func` with
-the Week algorithm. `w(t)` evaluates the transform at `t`. The accuracy depends on the choice
+the Weeks algorithm. `w(t)` evaluates the transform at `t`. The accuracy depends on the choice
 of `sigma` and `b`, with the optimal choices depending on `t`.
 
 The call to `Weeks` that creates `w` is expensive relative to evaluation via `w(t)`.
@@ -69,7 +69,7 @@ optimize the parameters of the inverse Laplace transform `w` at the
 argument `t`. If `Nterms` is ommitted, the current value of `w.Nterms`
 is retained.
 
-The accuracy of the Week algorithm depends strongly on `t`. For some ranges
+The accuracy of the Weeks algorithm depends strongly on `t`. For some ranges
 of `t`, the accuracy is relatively insensitive to the parameters. For other
 values of `t`, even using optimized parameters results in estimates of
 the inverse transform that are extremely inaccurate.
@@ -160,9 +160,9 @@ function optimize(w::WeeksErr, t)
 end
 
 """
-   w::WeeksErr = Weeks(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0)
+   w::WeeksErr = WeeksErr(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0)
 
-return `w`, which estimates the inverse Laplace transform of `func` via the Week algorithm.
+return `w`, which estimates the inverse Laplace transform of `func` via the Weeks algorithm.
 `w(t)` returns a tuple containing the inverse transform at `t` and an error estimate. The accuracy of the
 inversion depends on the choice of `sigma` and `b`.
 

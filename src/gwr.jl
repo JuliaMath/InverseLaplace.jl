@@ -26,8 +26,10 @@ julia> gwr( s -> 1/s^3,  3.0)
 ```
 
 !!! note
-    This function uses the Gaver-Wunn rho method.
+
+    This function uses the Gaver-Wynn rho method.
     It evaluates `func` only for real arguments.
+
 """
 function gwr(func, t, M)
     Dt = typeof(t)

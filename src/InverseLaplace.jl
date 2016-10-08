@@ -17,7 +17,7 @@ type ILt{T<:Base.Callable, V<:Base.Callable} <: AbstractILt
 end
 
 """
-    itrans = ILt(func,iltfunc) = ILt(func, iltfunc, Nterms=32)
+    itrans = ILt(func, iltfunc, Nterms=32)
 
 return an object that estimates the inverse Laplace transform of
 the function `func` using the algorithm implemented by function `iltfunc`.
@@ -57,10 +57,6 @@ include("gwr.jl")
 include("weeks.jl")
 include("test.jl")
 
-# I think the vectorize macros already do this.
-# And we should use the comprehensions anyway. They are faster for some reason.
-# OTOH, ITL evaluation is relatively very slow.
-#
 # Broadcasting currently does not work because the first arg is a function
 # talbot.( s -> 1/s^2 , [1.0,2.0])
 # ERROR: MethodError: no method matching size(::##9#10)
@@ -68,21 +64,5 @@ include("test.jl")
 for f in (:talbot, :gwr)
     @eval $(f)(func, ta::AbstractArray, args...) =  [ $(f)(func, t, args...) for t in ta ]
 end
-
-#        length(ta) == 0 && return similar(ta)
-        # a1 = $(f)(func, ta[1], args...)
-        # a = similar(ta,typeof(a1))
-        # for (i,t) in enumerate(ta)
-        #     a[i] = $(f)(func, t, args...)
-        # end
-        # a
-#    end
-
-# phased out
-# Objects of type t are callable and use ILt function f
-# for (t,f) in ((:Talbot,:talbot), (:GWR, :gwr))
-#    @eval (ailt::$t)(t) = ($f)(ailt.func, t, ailt.Nterms)
-#    @eval (ailt::$t)(t,N) = ($f)(ailt.func, t, N)
-# end
 
 end # module

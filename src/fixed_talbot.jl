@@ -26,8 +26,7 @@ julia> talbot( s -> 1/s^3,  3)
 ```
 
 !!! note
-    This function uses the fixed Talbot method.
-    It evaluates `func` for complex arguments.
+    This function uses the fixed Talbot method. It evaluates `func` for complex arguments.
 """
 function talbot(func, t, M)
     bM = convert(typeof(t),M)
