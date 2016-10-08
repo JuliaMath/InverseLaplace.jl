@@ -8,7 +8,6 @@ type ILtPair{T} <: AbstractILt
     ft
 end
 
-
 function iltpair_power(n)
     fs = s -> s^(- n - 1) * gamma(1+n)
     ft = t -> t^n

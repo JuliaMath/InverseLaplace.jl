@@ -69,13 +69,24 @@ type WeeksErr <: AbstractWeeks
     sa2::Float64
 end
 
-function WeeksErr(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0)
+function _get_coefficients_and_params(func, Nterms, sigma, b)
     M = 2 * Nterms
     a0 = real(_wcoeff(func,M,sigma,b))
     a1 = a0[2*Nterms+1:3*Nterms]
     sa1 = sum(abs(a1))
     sa2 = sum(abs(@view a0[3*Nterms+1:4*Nterms]))
-    WeeksErr(func,Nterms,sigma,b,a1,sa1,sa2)
+    (a1,sa1,sa2)
+end
+
+function WeeksErr(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0)
+    # M = 2 * Nterms
+    # a0 = real(_wcoeff(func,M,sigma,b))
+    # a1 = a0[2*Nterms+1:3*Nterms]
+    # sa1 = sum(abs(a1))
+    # sa2 = sum(abs(@view a0[3*Nterms+1:4*Nterms]))
+    #    WeeksErr(func,Nterms,sigma,b,a1,sa1,sa2)
+    params = _get_coefficients_and_params(func, Nterms, sigma, b)
+    WeeksErr(func,Nterms,sigma,b,params...)
 end
 
 function eval_ilt(w::WeeksErr, t)
