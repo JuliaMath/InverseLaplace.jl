@@ -27,6 +27,19 @@ and the precision of the data type of the argument to `func`. The default value
 of `32` may give extremely inaccurate estimates.
 
 `iltfunc` may be either `talbot` or `gwr`.
+
+## Example
+
+```julia
+julia> itr = ILt( s -> 1/(1+s^2), talbot);
+
+julia> itr([ pi/4, pi/2, 3*pi/4, -pi])
+4-element Array{Float64,1}:
+  0.707107   
+  1.0        
+  0.707107   
+ -3.66676e-12
+```
 """
 ILt(func,iltfunc) = ILt(func, iltfunc, 32)
 
