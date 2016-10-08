@@ -113,7 +113,7 @@ end
 
 function _laguerre(a::AbstractVector,x::AbstractArray)
     N = length(a) - 1
-    unp1 = zeros(x)
+    unp1 = zeros(x)    
     un = a[N+1]*ones(x)
     local unm1
     for n in N:-1:1

@@ -5,6 +5,8 @@ using Base.Test
 
 include("weeks_test.jl")
 
+#### plain function interface
+
 @test_approx_eq( talbot(s -> 1/s,1.0) , 1.000000000007737)
 @test_approx_eq( talbot(s -> 1/s,1) , 1.0)
 @test_approx_eq( gwr(s -> 1/s,1) , 1.0)
@@ -18,15 +20,13 @@ if Int != Int32 && VERSION >= v"0.5.0"
     @test_approx_eq( gwr(s -> 1/s^4,1//10) * 6 , 0.0010000012595365085)
 
     # At one point, talbot returned rational with rational input. Now we convert to BigFloat
-    #
-    # If we write our one vectorizing code the following test passes. But not if we use whatever code julia uses to do it automatically
-    #    @test_approx_eq( talbot(s -> 1/s^3,[1//10,2//10]) , Rational[2882303761517117//576460752303423488, 5764607523035027//288230376151711744])
-
-    # This test passes
-    @test_approx_eq( talbot(s -> 1/s^3,[1//10,2//10]) , [BigFloat(2882303761517117//576460752303423488), BigFloat(5764607523035027//288230376151711744)])
+    @test_approx_eq( talbot(s -> 1/s^3,[1//10,2//10], 64) , [(2882303761517117//576460752303423488), (5764607523035027//288230376151711744)])
+    @test (talbot(s -> 1/s^3,[[.1,.2], [.4,.5]]); true)
+    @test_approx_eq( talbot(s -> 1/s^3, [.1 .2; .3 .4] ),  [0.005 0.02; 0.045 0.08])
 else
     @test_approx_eq_eps( talbot(s -> 1/s^4,1//10) * 6 , 1e-3,  1e-9)
     @test_approx_eq_eps( gwr(s -> 1/s^4,1//10) * 6 , 0.0010000012595365085, 1e-9)
+    @test_approx_eq_eps( talbot(s -> 1/s^3, [.1 .2; .3 .4] ),  [0.005 0.02; 0.045 0.08], 1e-9)
 end
 
 @test_approx_eq( talbot(s -> 1/s^3,[.1,.2]) , [0.005,0.02])
@@ -45,3 +45,4 @@ end
 
 @test typeof(talbot(s -> 1/s^3,1//10)) == BigFloat
 @test typeof(talbot(s -> 1/s^3,1//10, 64)) == BigFloat
+
