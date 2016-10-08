@@ -11,6 +11,8 @@ Windows: [![Build Status](https://ci.appveyor.com/api/projects/status/github/jla
 ```@contents
 ```
 
+Note: the last version of this module supporting Julia v0.4 is tagged v0.0.2
+
 ## Inverse Laplace transform types
 
 Constructing these types returns a callable object that evaluates the inverse transform at specified points.
