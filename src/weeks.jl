@@ -23,17 +23,21 @@ end
 
 _get_coefficients(w::Weeks) = _get_coefficients(w.func, w.Nterms, w.sigma, w.b)
 
+_set_coefficients(w::Weeks) = (w.coefficients = _get_coefficients(w))
+
 """
    w::Weeks = Weeks(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0)
 
-return `w`, which performs the inverse Laplace transform of `func`.
-`w(t)` evaluates the transform at `t`. The accuracy depends on the choice
-of `sigma` and `b`.
+return `w`, which estimates the inverse Laplace transform of `func` with
+the Week algorithm. `w(t)` evaluates the transform at `t`. The accuracy depends on the choice
+of `sigma` and `b`, with the optimal choices depending on `t`.
+
+The call to `Weeks` that creates `w` is expensive relative to evaluation via `w(t)`.
 """
 Weeks(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0) =  Weeks(func,Nterms,sigma,b,_get_coefficients(func,Nterms,sigma,b))
 
 function eval_ilt(w::Weeks, t)
-    L = _laguerre(w.coefficients,2*w.b*t) 
+    L = _laguerre(w.coefficients,2*w.b*t)
     L * exp((w.sigma-w.b)*t)
 end
 
@@ -55,7 +59,13 @@ optimize the parameters of the inverse Laplace transform `w` at the
 argument `t`. If `Nterms` is ommitted, the current value of `w.Nterms`
 is retained.
 
-`optimize` is expensive in CPU time and allocation, it performs nested optimization over two parameterss.
+The accuracy of the Week algorithm depends strongly on `t`. For some ranges
+of `t`, the accuracy is relatively insensitive to the parameters. For other
+values of `t`, even using optimized parameters results in estimates of
+the inverse transform that are extremely inaccurate.
+
+`optimize` is expensive in CPU time and allocation, it performs nested single-parameter
+optimization over two parameterss.
 """
 function optimize{T<:AbstractWeeks}(w::T, t, N)
     w.Nterms = N
@@ -67,9 +77,42 @@ function optimize{T<:AbstractWeeks}(w::T, t)
     w(t)
 end
 
+"""
+    opteval{T<:AbstractWeeks}(w::T, t, Nterms)
+
+estimate an inverse Laplace transform at argument `t` using `w` after
+optimizing the parameters for `t`. If `Nterms` is omitted, then the
+current value of `w.Nterms` is used.
+
+Use `Weeks` or `WeeksErr` to create `w`.
+"""
 function opteval{T<:AbstractWeeks}(w::T, t, N)
     optimize(w,t, N)
     w(t)
+end
+
+opteval{T<:AbstractWeeks}(w::T, t) = opteval(w,t,w.Nterms)
+
+"""
+    setparameters{T<:AbstractWeeks}(w::T, sigma, b, Nterms)
+
+Set the parameters for the inverse Laplace transform object `w` and recompute
+the internal data. Subsequent calls `w(t)` will use these parameters. If `Nterms`
+or both `Nterms` and `b` are omitted, then their current values are retained.
+"""
+function setparameters{T<:AbstractWeeks}(w::T, sigma, b, Nterms)
+    (w.sigma, w.b, w.Nters) = (sigma,b,Nterms)
+    _set_coefficients(w)
+    w
+end
+
+setparameters(w,sigma,b) = setparameters(w,sigma,b,w.Nterms)
+setparameters(w,sigma) = setparameters(w,sigma,w.b)
+
+function setNterms{T<:AbstractWeeks}(w::T, Nterms)
+    w.Nterms = Nterms
+    _set_coefficients(w)
+    w
 end
 
 #### WeeksErr
@@ -80,7 +123,7 @@ type WeeksErr <: AbstractWeeks
     sigma::Float64
     b::Float64
     coefficients::Array{Float64,1}
-    sa1::Float64    
+    sa1::Float64
     sa2::Float64
 end
 
@@ -95,39 +138,38 @@ end
 
 _get_coefficients_and_params(w::WeeksErr) = _get_coefficients_and_params(w.func, w.Nterms, w.sigma, w.b)
 
+_get_coefficients(w::WeeksErr) = _get_coefficients_and_params(w.func, w.Nterms, w.sigma, w.b)
+
+_set_coefficients(w::WeeksErr) = (w.coefficients, w.sa1, w.sa2) = _get_coefficients_and_params(w)
+
 function optimize(w::WeeksErr, t)
     (w.sigma, w.b) = _optimize_sigma_and_b(w.func, t, w.Nterms, 0.0, 30, 30)
-    (w.coefficients, w.sa1, w.sa2) = _get_coefficients_and_params(w)
+    _set_coefficients(w)
+#    (w.coefficients, w.sa1, w.sa2) = _get_coefficients_and_params(w)
     w
 end
 
 """
    w::WeeksErr = Weeks(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0)
 
-return `w`, which performs the inverse Laplace transform of `func`.
+return `w`, which estimates the inverse Laplace transform of `func` via the Week algorithm.
 `w(t)` returns a tuple containing the inverse transform at `t` and an error estimate. The accuracy of the
 inversion depends on the choice of `sigma` and `b`.
 """
 function WeeksErr(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0)
-    # M = 2 * Nterms
-    # a0 = real(_wcoeff(func,M,sigma,b))
-    # a1 = a0[2*Nterms+1:3*Nterms]
-    # sa1 = sum(abs(a1))
-    # sa2 = sum(abs(@view a0[3*Nterms+1:4*Nterms]))
-    #    WeeksErr(func,Nterms,sigma,b,a1,sa1,sa2)
     params = _get_coefficients_and_params(func, Nterms, sigma, b)
     WeeksErr(func,Nterms,sigma,b,params...)
 end
 
 function eval_ilt(w::WeeksErr, t)
-    L = _laguerre(w.coefficients,2*w.b*t) 
+    L = _laguerre(w.coefficients,2*w.b*t)
     f = L * exp((w.sigma-w.b)*t)
     est = exp(w.sigma*t)*(w.sa2+eps()*w.sa1)
     (f,est)
 end
 
 function eval_ilt(w::WeeksErr, t::AbstractArray)
-    L = _laguerre(w.coefficients,2*w.b*t) 
+    L = _laguerre(w.coefficients,2*w.b*t)
     f = L .* exp((w.sigma-w.b)*t)
     est = exp(w.sigma*t)*(w.sa2+eps()*w.sa1)
     (f,est)
@@ -154,7 +196,7 @@ end
 
 function _laguerre(a::AbstractVector,x::AbstractArray)
     N = length(a) - 1
-    unp1 = zeros(x)    
+    unp1 = zeros(x)
     un = a[N+1]*ones(x)
     local unm1
     for n in N:-1:1
@@ -202,43 +244,3 @@ function _werr2t(b, F, N, sig)
     sa2 = sum(abs( @view a[3*N+1:4*N]))
     log(sa2)
 end
-
-##### old function
-
-function weeks(F, t::AbstractArray, N, sig, b)
-    a0 = real(_wcoeff(F,N,sig,b))
-    a = @view a0[N+1:2*N]
-    L = _laguerre(a,2*b*t)
-    L .* exp((sig-b)*t)
-end
-
-function weeks(F, t, N, sig, b)
-    a0 = real(_wcoeff(F,N,sig,b))
-    a =  @view a0[N+1:2*N]
-    _laguerre(a,2*b*t) * exp((sig-b)*t)
-end
-
-function weekse(F, t::AbstractArray, N, sig, b)
-    M = 2 * N
-    a   = real(_wcoeff(F,M,sig,b))
-    a1  = @view a[2*N+1:3*N]
-    sa1 = sum(abs(a1))
-    a2  = @view a[3*N+1:4*N]
-    sa2 = sum(abs(a2))
-    L   = _laguerre(a1,2*b*t)
-    f   = L .* exp((sig-b)*t)
-    est = exp(sig*t)*(sa2+eps()*sa1)
-    (f,est)
-end
-
-function weekse(F, t, N, sig, b)
-    M = 2 * N
-    a   = real(_wcoeff(F,M,sig,b))
-    a1  = @view a[2*N+1:3*N]; sa1 = sum(abs(a1))
-    a2  = @view a[3*N+1:4*N]; sa2 = sum(abs(a2))
-    L   = _laguerre(a1,2*b*t);
-    f   = L*exp((sig-b)*t);
-    est = exp(sig*t)*(sa2+eps()*sa1);
-    (f,est)
-end
-
