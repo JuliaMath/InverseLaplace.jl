@@ -23,7 +23,13 @@ end
 
 _get_coefficients(w::Weeks) = _get_coefficients(w.func, w.Nterms, w.sigma, w.b)
 
+"""
+   w::Weeks = Weeks(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0)
 
+return `w`, which performs the inverse Laplace transform of `func`.
+`w(t)` evaluates the transform at `t`. The accuracy depends on the choice
+of `sigma` and `b`.
+"""
 Weeks(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0) =  Weeks(func,Nterms,sigma,b,_get_coefficients(func,Nterms,sigma,b))
 
 function eval_ilt(w::Weeks, t)
@@ -42,6 +48,15 @@ function optimize(w::Weeks, t)
     w
 end
 
+"""
+    optimize{T<:AbstractWeeks}(w::T, t, Nterms)
+
+optimize the parameters of the inverse Laplace transform `w` at the
+argument `t`. If `Nterms` is ommitted, the current value of `w.Nterms`
+is retained.
+
+`optimize` is expensive in CPU time and allocation, it performs nested optimization over two parameterss.
+"""
 function optimize{T<:AbstractWeeks}(w::T, t, N)
     w.Nterms = N
     optimize(w,t)
@@ -86,6 +101,13 @@ function optimize(w::WeeksErr, t)
     w
 end
 
+"""
+   w::WeeksErr = Weeks(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0)
+
+return `w`, which performs the inverse Laplace transform of `func`.
+`w(t)` returns a tuple containing the inverse transform at `t` and an error estimate. The accuracy of the
+inversion depends on the choice of `sigma` and `b`.
+"""
 function WeeksErr(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0)
     # M = 2 * Nterms
     # a0 = real(_wcoeff(func,M,sigma,b))
