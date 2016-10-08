@@ -13,3 +13,7 @@ e2 = abserr(p, 10.0)
 @test e2 < e1
 
 @test typeof(Weeks(iltpair_power(5))) <: ILtPair
+
+# Default method is talbot
+fl1 = ILt( s -> 1/s)
+@test fl1.iltfunc == talbot

@@ -39,7 +39,7 @@ opteval
 setparameters
 ```
 
-## Investigating performance
+## Analzying performance
 
 ```@docs
 ILtPair

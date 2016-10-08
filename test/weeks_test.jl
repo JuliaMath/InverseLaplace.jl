@@ -32,3 +32,11 @@ setNterms(fle, 80)
 e2 = abs(fle(10.0)[1] - cos(10.0))
 @test e2 < e1
 
+fle = WeeksErr( s -> s/(1+s^2),  64 )
+c1 = copy(fle.coefficients)
+@test string(fle) == "InverseLaplace.WeeksErr(Nterms=64,sigma=1.0,b=1.0)"
+setparameters(fle,2.0,2.0,80)
+@test string(fle) == "InverseLaplace.WeeksErr(Nterms=80,sigma=2.0,b=2.0)"
+
+# Check that Laguerre coefficients have been recomputed
+@test c1 != fle.coefficients

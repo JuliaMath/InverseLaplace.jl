@@ -82,11 +82,6 @@ function optimize{T<:AbstractWeeks}(w::T, t, N)
     optimize(w,t)
 end
 
-function optimize{T<:AbstractWeeks}(w::T, t)
-    optimize(w,t)
-    w(t)
-end
-
 """
     opteval{T<:AbstractWeeks}(w::T, t, Nterms)
 
@@ -111,7 +106,7 @@ the internal data. Subsequent calls `w(t)` will use these parameters. If `Nterms
 or both `Nterms` and `b` are omitted, then their current values are retained.
 """
 function setparameters{T<:AbstractWeeks}(w::T, sigma, b, Nterms)
-    (w.sigma, w.b, w.Nters) = (sigma,b,Nterms)
+    (w.sigma, w.b, w.Nterms) = (sigma,b,Nterms)
     _set_coefficients(w)
     w
 end

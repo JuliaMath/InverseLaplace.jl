@@ -10,6 +10,10 @@ include("interface_test.jl")
 
 @test_approx_eq( talbot(s -> 1/s,1.0) , 1.000000000007737)
 @test_approx_eq( talbot(s -> 1/s,1) , 1.0)
+
+# ilt wraps talbot
+@test_approx_eq( talbot(s -> 1/s,1), ilt(s -> 1/s,1))
+
 @test_approx_eq( gwr(s -> 1/s,1) , 1.0)
 @test_approx_eq( gwr(s -> 1/s,1.0) , 1.0000000002465594)
 @test_approx_eq( talbot(s -> s/(1+s^2),1) , cos(1))
