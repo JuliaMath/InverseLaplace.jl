@@ -4,6 +4,7 @@ import InverseLaplace: talbot, gwr
 using Base.Test
 
 include("weeks_test.jl")
+include("interface_test.jl")
 
 #### plain function interface
 
