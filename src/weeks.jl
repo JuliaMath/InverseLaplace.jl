@@ -33,6 +33,16 @@ the Week algorithm. `w(t)` evaluates the transform at `t`. The accuracy depends 
 of `sigma` and `b`, with the optimal choices depending on `t`.
 
 The call to `Weeks` that creates `w` is expensive relative to evaluation via `w(t)`.
+
+# Example
+
+Compute the inverse transform of the transform of `cos` at argument `pi/2`.
+```
+julia> ft = Weeks(s -> s/(s^2+1), 80);
+
+julia> ft(pi/2)
+0.0
+```
 """
 Weeks(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0) =  Weeks(func,Nterms,sigma,b,_get_coefficients(func,Nterms,sigma,b))
 
@@ -155,6 +165,28 @@ end
 return `w`, which estimates the inverse Laplace transform of `func` via the Week algorithm.
 `w(t)` returns a tuple containing the inverse transform at `t` and an error estimate. The accuracy of the
 inversion depends on the choice of `sigma` and `b`.
+
+# Example
+
+Compute the inverse transform of the transform of `cos` at argument `pi/2` using `80` terms and
+an error estimate.
+```
+julia> ft = Weeks(s -> s/(s^2+1), 80);
+
+julia> ft(pi/2)
+(0.0,3.0872097665938698e-15)
+```
+This estimate is more accurate than `cos(pi/2)`.
+```
+julia> ft(pi/2)[1] - cos(pi/2)
+-6.123233995736766e-17
+
+julia> ft(pi/2)[1] - 0.0         # exact value
+0.0
+
+julia> ft(pi/2)[1] - cospi(1/2)  # cospi is more accurate
+0.0
+```
 """
 function WeeksErr(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0)
     params = _get_coefficients_and_params(func, Nterms, sigma, b)
