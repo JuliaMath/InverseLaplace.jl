@@ -42,17 +42,17 @@ function optimize(w::Weeks, t)
     w
 end
 
-function optimize(w::Weeks, t, N)
+function optimize{T<:AbstractWeeks}(w::T, t, N)
     w.Nterms = N
     optimize(w,t)
 end
 
-function opteval(w::Weeks, t)
+function optimize{T<:AbstractWeeks}(w::T, t)
     optimize(w,t)
     w(t)
 end
 
-function opteval(w::Weeks, t, N)
+function opteval{T<:AbstractWeeks}(w::T, t, N)
     optimize(w,t, N)
     w(t)
 end
@@ -76,6 +76,12 @@ function _get_coefficients_and_params(func, Nterms, sigma, b)
     sa1 = sum(abs(a1))
     sa2 = sum(abs(@view a0[3*Nterms+1:4*Nterms]))
     (a1,sa1,sa2)
+end
+
+function optimize(w::WeeksErr, t)
+    (w.sigma, w.b) = _optimize_sigma_and_b(w.func, t, w.Nterms, 0.0, 30, 30)
+    (w.coefficients, w.sa1, w.sa2) = _get_coefficients_and_params(w)
+    w
 end
 
 function WeeksErr(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0)
