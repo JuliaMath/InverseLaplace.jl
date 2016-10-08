@@ -9,6 +9,9 @@ fl = Weeks( s -> 1/s^2 )
 fl = Weeks( s -> s/(1+s^2),  64 )
 @test_approx_eq( fl([1 2; 3 4]), cos([1 2; 3 4]))
 
+fle = WeeksErr( s -> s/(1+s^2),  64 )
+@test_approx_eq( fle([1 2; 3 4])[1], cos([1 2; 3 4]))
+
 e1 = fl(10.0) - cos(10.0)
 optimize(fl,10.0)
 e2 = fl(10.0) - cos(10.0)

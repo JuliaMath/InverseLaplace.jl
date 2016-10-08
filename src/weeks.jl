@@ -78,6 +78,8 @@ function _get_coefficients_and_params(func, Nterms, sigma, b)
     (a1,sa1,sa2)
 end
 
+_get_coefficients_and_params(w::WeeksErr) = _get_coefficients_and_params(w.func, w.Nterms, w.sigma, w.b)
+
 function optimize(w::WeeksErr, t)
     (w.sigma, w.b) = _optimize_sigma_and_b(w.func, t, w.Nterms, 0.0, 30, 30)
     (w.coefficients, w.sa1, w.sa2) = _get_coefficients_and_params(w)
