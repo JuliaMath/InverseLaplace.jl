@@ -13,6 +13,10 @@ Windows: [![Build Status](https://ci.appveyor.com/api/projects/status/github/jla
 
 Note: the last version of this module supporting Julia v0.4 is tagged v0.0.2
 
+Most of the routines below are "vectorized" in some way, either in the package or automatically by `Julia`.
+This means that they operate on `Arrays` (or `AbstractArrays`) as well as scalar quantities. broadcast
+and its new syntax typically do not work at the time of this writing.
+
 ## Inverse Laplace transform types
 
 Constructing these types returns a callable object that evaluates the inverse transform at specified points.
