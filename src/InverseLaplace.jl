@@ -1,6 +1,7 @@
 module InverseLaplace
 
 export Talbot, GWR, Weeks, WeeksErr
+export optimize
 
 #export ilt, gwr
 
