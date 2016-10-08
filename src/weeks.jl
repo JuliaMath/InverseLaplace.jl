@@ -1,6 +1,6 @@
 using Optim
 
-abstract AbstractWeeks <: AbstractILT
+abstract AbstractWeeks <: AbstractILt
 
 function Base.show{T<:AbstractWeeks}(io::IO, w::T)
     print(io, string(typeof(w)), "(Nterms=", w.Nterms, ",sigma=", w.sigma, ",b=", w.b,')')
@@ -26,18 +26,18 @@ _get_coefficients(w::Weeks) = _get_coefficients(w.func, w.Nterms, w.sigma, w.b)
 
 Weeks(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0) =  Weeks(func,Nterms,sigma,b,_get_coefficients(func,Nterms,sigma,b))
 
-function eval_weeks(w::Weeks, t)
+function eval_ilt(w::Weeks, t)
     L = _laguerre(w.coefficients,2*w.b*t) 
     L * exp((w.sigma-w.b)*t)
 end
 
-function eval_weeks(w::Weeks, t::AbstractVector)
+function eval_ilt(w::Weeks, t::AbstractVector)
     L = _laguerre(w.coefficients,2*w.b*t)
     [ L1 * exp((w.sigma-w.b)*t1) for (t1,L1) in zip(t,L)]
 end
 
 function optimize(w::Weeks, t)
-    (w.sigma, w.b) = wpar2(w.func, t, w.Nterms, 0.0, 30, 30)
+    (w.sigma, w.b) = _optimize_sigma_and_b(w.func, t, w.Nterms, 0.0, 30, 30)
     w.coefficients = _get_coefficients(w)
     w
 end
@@ -45,6 +45,16 @@ end
 function optimize(w::Weeks, t, N)
     w.Nterms = N
     optimize(w,t)
+end
+
+function opteval(w::Weeks, t)
+    optimize(w,t)
+    w(t)
+end
+
+function opteval(w::Weeks, t, N)
+    optimize(w,t, N)
+    w(t)
 end
 
 #### WeeksErr
@@ -68,14 +78,14 @@ function WeeksErr(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0)
     WeeksErr(func,Nterms,sigma,b,a1,sa1,sa2)
 end
 
-function eval_weeks(w::WeeksErr, t)
+function eval_ilt(w::WeeksErr, t)
     L = _laguerre(w.coefficients,2*w.b*t) 
     f = L * exp((w.sigma-w.b)*t)
     est = exp(w.sigma*t)*(w.sa2+eps()*w.sa1)
     (f,est)
 end
 
-function eval_weeks(w::WeeksErr, t::AbstractVector)
+function eval_ilt(w::WeeksErr, t::AbstractVector)
     L = _laguerre(w.coefficients,2*w.b*t) 
     f = L .* exp((w.sigma-w.b)*t)
     est = exp(w.sigma*t)*(w.sa2+eps()*w.sa1)
@@ -83,10 +93,10 @@ function eval_weeks(w::WeeksErr, t::AbstractVector)
 end
 
 for w in (:Weeks, :WeeksErr)
-    @eval (w::$(w))(t) = eval_weeks(w,t)
+    @eval (w::$(w))(t) = eval_ilt(w,t)
 end
 
-#####
+##### internal functions
 
 function _wcoeff(F,N,sig,b)
     n = -N:1:N-1
@@ -128,14 +138,14 @@ function _laguerre(a::AbstractVector,x)
     unm1
 end
 
-function wpar2(F, t, N, sig0, sigmax, bmax)
-    sigma_opt = Optim.minimizer(Optim.optimize( sig -> werr2e(sig, F,t,N, sig0, sigmax, bmax), sig0, sigmax))
-    b_opt = Optim.minimizer(Optim.optimize( b -> werr2t(b, F, N, sigma_opt), 0, bmax))
+function _optimize_sigma_and_b(F, t, N, sig0, sigmax, bmax)
+    sigma_opt = Optim.minimizer(Optim.optimize( sig -> _werr2e(sig, F,t,N, sig0, sigmax, bmax), sig0, sigmax))
+    b_opt = Optim.minimizer(Optim.optimize( b -> _werr2t(b, F, N, sigma_opt), 0, bmax))
     (sigma_opt, b_opt)
 end
 
-function werr2e(sig,F,t,N,sig0,sigmax,bmax)
-    b = Optim.minimizer(Optim.optimize( (b) -> werr2t(b, F,N, sig) , 0.0, bmax))
+function _werr2e(sig,F,t,N,sig0,sigmax,bmax)
+    b = Optim.minimizer(Optim.optimize( (b) -> _werr2t(b, F,N, sig) , 0.0, bmax))
     M = 2*N
     a = _wcoeff(F,M,sig,b)
     a1 = @view a[2*N+1:3*N]
@@ -145,14 +155,14 @@ function werr2e(sig,F,t,N,sig0,sigmax,bmax)
     sig*t + log(sa2+eps()*sa1)
 end
 
-function werr2t(b, F, N, sig)
+function _werr2t(b, F, N, sig)
     M = 2*N
     a = _wcoeff(F,M,sig,b)
     sa2 = sum(abs( @view a[3*N+1:4*N]))
     log(sa2)
 end
 
-#####
+##### old function
 
 function weeks(F, t::AbstractVector, N, sig, b)
     a0 = real(_wcoeff(F,N,sig,b))
