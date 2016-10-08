@@ -3,12 +3,12 @@
 # International Journal for Numerical Methods in Engineering, Vol. 60 (Iss. 5-7)  2004  pp 979–993
 # Fixed Talbot method
 
-type Talbot <: AbstractILt
-    func::Function
-    Nterms::Int
-end
+# type Talbot <: AbstractILt
+#     func::Function
+#     Nterms::Int
+# end
 
-Talbot(func::Function) = Talbot(func, 32)
+# Talbot(func::Function) = Talbot(func, 32)
 
 """
     talbot(func::Function, t::AbstractFloat, M::Integer=32)
@@ -91,4 +91,3 @@ talbotarr(func,t::AbstractArray) = talbotarr(func,t,32)
 talbotarr(func,t::AbstractArray{BigFloat}) = talbotarr(func,t,64)
 
 ####
-

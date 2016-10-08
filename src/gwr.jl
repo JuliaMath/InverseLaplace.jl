@@ -3,12 +3,12 @@
 # Computers and Mathematics with Application,  Vol. 48 (Iss.3-40) 2004 pp. 629-636
 # Gaver Wynn rho method
 
-type GWR <: AbstractILt
-    func::Function
-    Nterms::Int
-end
+# type GWR <: AbstractILt
+#     func::Function
+#     Nterms::Int
+# end
 
-GWR(func::Function) = GWR(func, 16)
+# GWR(func::Function) = GWR(func, 16)
 
 """
     gwr(func::Function, t::AbstractFloat, M::Integer=16)

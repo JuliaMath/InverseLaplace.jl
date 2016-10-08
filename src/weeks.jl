@@ -31,7 +31,7 @@ function eval_ilt(w::Weeks, t)
     L * exp((w.sigma-w.b)*t)
 end
 
-function eval_ilt(w::Weeks, t::AbstractVector)
+function eval_ilt(w::Weeks, t::AbstractArray)
     L = _laguerre(w.coefficients,2*w.b*t)
     [ L1 * exp((w.sigma-w.b)*t1) for (t1,L1) in zip(t,L)]
 end
@@ -85,7 +85,7 @@ function eval_ilt(w::WeeksErr, t)
     (f,est)
 end
 
-function eval_ilt(w::WeeksErr, t::AbstractVector)
+function eval_ilt(w::WeeksErr, t::AbstractArray)
     L = _laguerre(w.coefficients,2*w.b*t) 
     f = L .* exp((w.sigma-w.b)*t)
     est = exp(w.sigma*t)*(w.sa2+eps()*w.sa1)
@@ -111,7 +111,7 @@ function _wcoeff(F,N,sig,b)
     exp(Complex(zero(h),-one(h)) * n*h/2) .* a
 end
 
-function _laguerre(a::AbstractVector,x::AbstractVector)
+function _laguerre(a::AbstractVector,x::AbstractArray)
     N = length(a) - 1
     unp1 = zeros(x)
     un = a[N+1]*ones(x)
@@ -164,7 +164,7 @@ end
 
 ##### old function
 
-function weeks(F, t::AbstractVector, N, sig, b)
+function weeks(F, t::AbstractArray, N, sig, b)
     a0 = real(_wcoeff(F,N,sig,b))
     a = @view a0[N+1:2*N]
     L = _laguerre(a,2*b*t)
@@ -177,7 +177,7 @@ function weeks(F, t, N, sig, b)
     _laguerre(a,2*b*t) * exp((sig-b)*t)
 end
 
-function weekse(F, t::AbstractVector, N, sig, b)
+function weekse(F, t::AbstractArray, N, sig, b)
     M = 2 * N
     a   = real(_wcoeff(F,M,sig,b))
     a1  = @view a[2*N+1:3*N]
