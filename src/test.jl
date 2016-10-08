@@ -3,10 +3,11 @@ type TransformPair
     fs
 end
 
-type ILTPair{T} <: AbstractILt
+type ILtPair{T} <: AbstractILt
     ilt::T
     ft
 end
+
 
 function iltpair_power(n)
     fs = s -> s^(- n - 1) * gamma(1+n)
@@ -14,10 +15,13 @@ function iltpair_power(n)
     TransformPair(ft,fs)
 end
 
-abserr(p::ILTPair, t) = abs(p.ilt(t) - p.ft(t))
+abserr(p::ILtPair, t) = abs(p.ilt(t) - p.ft(t))
 
-# Create ILTPair with ilt type
+# Create ILtPair with ilt type
 for ilttype in (:Talbot, :GWR, :Weeks)
-    @eval $(ilttype)(p::TransformPair,args...) = ILTPair($(ilttype)(p.fs,args...), p.ft)
+    @eval $(ilttype)(p::TransformPair,args...) = ILtPair($(ilttype)(p.fs,args...), p.ft)
 end
 
+for f in (:optimize,)
+    @eval $(f)(p::ILtPair,args...) = $(f)(p.ilt, args...)
+end
