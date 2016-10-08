@@ -1,181 +1,68 @@
 module InverseLaplace
 
-export ilt, gwr
+export ILt, setNterms
 
-# Two methods to compute the inverse Laplace transform.
+export  Weeks, WeeksErr, optimize, opteval, setparameters
 
-# Abate, J. and Valkó, P.P.
-# Multi-precision Laplace transform inversion
-# International Journal for Numerical Methods in Engineering, Vol. 60 (Iss. 5-7)  2004  pp 979–993
-# Fixed Talbot method
+export ILtPair, abserr, iltpair_power
 
+export ilt, talbot, gwr
+
+abstract AbstractILt
+
+type ILt{T<:Base.Callable, V<:Base.Callable} <: AbstractILt
+    func::T
+    iltfunc::V
+    Nterms::Int
+end
+
+"""
+    itrans = ILt(func, iltfunc, Nterms=32)
+
+return an object that estimates the inverse Laplace transform of
+the function `func` using the algorithm implemented by function `iltfunc`.
+`itrans(t)` estimates the inverse transform for argument `t`.  The
+accuracy of the estimates depends strongly on the choice of `iltfunc`, `t`, `Nterms`,
+and the precision of the data type of the argument to `func`. The default value
+of `32` may give extremely inaccurate estimates.
+
+`iltfunc` may be either `talbot` or `gwr`.
+"""
+ILt(func,iltfunc) = ILt(func, iltfunc, 32)
+
+# Make this the default
 """
     ilt(func::Function, t::AbstractFloat, M::Integer=32)
 
-Evaluate the inverse Laplace transform of `func` at the point `t`. Use `M` terms in the algorithm.
-For `typeof(t)` is `Float64`, the default for `M` is `32`. For `BigFloat` the default is `64`.
-
-If `BigFloat` precision is larger than default, try increasing `M`. `ilt is vectorized over `t`.
-
-# Example
-
-```jldoctest
-julia> ilt( s -> 1/s^3,  3)
-4.50000000000153
-```
-
-!!! note
-    This function uses the fixed Talbot method.
-    It evaluates `func` for complex arguments.
+`ilt` is an alias for the default inverse Laplace transform method `talbot`.
 """
-function ilt(func, t, M)
-    bM = convert(typeof(t),M)
-    r = (2 * bM) / (5*t)
-    term = (1//2) * exp(r*t) * func(r)
-    for i in 1:M-1
-        theta = i * (pi/bM)
-        s = r*theta*(complex(cot(theta),one(theta)))
-        sigma = theta + (theta*cot(theta)-1)*cot(theta)
-        term += real(exp(t*s) * complex(one(t),sigma) * func(s))
-    end
-    return term * 2 / (5*t)
-end
+ilt(args...) = talbot(args...)
+ILt(func) = ILt(func, talbot, 32)
 
-ilt(func,t) = ilt(func,t,32)
-ilt(func,t::BigFloat) = ilt(func,t,64)
-ilt(func,t::Integer,args...) = ilt(func,BigFloat(t),args...)
-# Hmm, at some point, one of these routines actually gave a Rational result. Don't recall how.
-# But, it can't be ilt.
-ilt(func,t::Rational,args...) = ilt(func,BigFloat(t),args...)
-
-
-# Operate on an array of values of t. A single function evaluation
-# f(s) is used for all t
-# This gives more inaccurate results the further values of
-# t are from tmax
 
 """
-    iltarr{T}(func, ta::AbstractArray{T}, M)
+    setNterms{T<:AbstractILt}(ailt::T, Nterms::Integer)
 
-inverse laplace transform vectorized over `ta`. Each evaluation
-of `func(s)` is used for all elements of `ta`. This may be faster
-than a vectorized application of `ilt`, but is in general, less accurate.
-`iltarr` uses the "fixed" Talbot method.
+set the number of terms used in the inverse Laplace tranform `itrans`. If
+`ailt` stores internal data, it will be recomputed, so that subsequent
+calls `ailt(t)` reflect the new value of `Nterms`.
 """
-function iltarr{T}(func, t::AbstractArray{T}, M)
-    tt = typeof(t[1])
-    bM = convert(tt,M)
-    terms = similar(t)
-    tmax = maximum(t)
-    r = (2 * bM) / (5*tmax)
-    fr = (1//2) * func(r)
-    for j in 1:length(terms)
-        terms[j] =  exp(r*t[j]) * fr
-    end
-    for i in 1:M-1
-        theta = i * (pi/bM)
-        s = r*theta*(complex(cot(theta),one(theta)))
-        sigma = theta + (theta*cot(theta)-1)*cot(theta)
-        fs = complex(one(tt),sigma) * func(s)
-        for j in 1:length(terms)
-            terms[j] += real(exp(t[j]*s) * fs)
-        end
-    end
-    for j in 1:length(terms)
-        terms[j] *= 2/(5*tmax)
-    end
-    return terms
+setNterms(ailt::ILt, N::Integer) = (ailt.Nterms = N)
+
+(ailt::ILt)(t) = ailt.iltfunc(ailt.func, t, ailt.Nterms)
+(ailt::ILt)(t,N) = ailt.iltfunc(ailt.func, t, N)
+
+include("fixed_talbot.jl")
+include("gwr.jl")
+include("weeks.jl")
+include("test.jl")
+
+# Broadcasting currently does not work because the first arg is a function
+# talbot.( s -> 1/s^2 , [1.0,2.0])
+# ERROR: MethodError: no method matching size(::##9#10)
+#
+for f in (:talbot, :gwr)
+    @eval $(f)(func, ta::AbstractArray, args...) =  [ $(f)(func, t, args...) for t in ta ]
 end
 
-iltarr(func,t::AbstractArray) = iltarr(func,t,32)
-iltarr(func,t::AbstractArray{BigFloat}) = iltarr(func,t,64)
-
-# Valkó, P.P. and Abate, J.
-# Comparison of Sequence Accelerators for the Gaver Method of Numerical Laplace Transform Inversion
-# Computers and Mathematics with Application,  Vol. 48 (Iss.3-40) 2004 pp. 629-636
-# Gaver Wynn rho method
-
-"""
-    gwr(func::Function, t::AbstractFloat, M::Integer=16)
-
-Evaluate the inverse Laplace transform of `func` at the point `t`. Use `M` terms in the algorithm.
-For `typeof(t)` is `Float64`, the default for `M` is `16`. For `BigFloat` the default is `64`.
-
-If `BigFloat` precision is larger than default, try increasing `M`.
-
-# Example
-
-```jldoctest
-julia> gwr( s -> 1/s^3,  3.0)
-4.499985907607361
-```
-
-!!! note
-    This function uses the Gaver-Wunn rho method.
-    It evaluates `func` only for real arguments.
-"""
-function gwr(func, t, M)
-    Dt = typeof(t)
-    bM = convert(Dt,M)
-    tau = log(convert(Dt,2))/t
-    broken = false
-    Fi = Array(Dt,2 * M)
-    for i in 1: 2 * M
-        Fi[i] = func(i * tau)
-    end
-    M1 = M
-    G0 = zeros(Dt,M1+1)
-    for n in 1:M
-        sm = zero(Dt)
-        bn = convert(Dt,n)
-        for i in 0:n
-            bi = convert(Dt,i)
-            sm += binomial(big(n),big(i)) * (-1)^i * Fi[n+i]
-        end
-        G0[n] = tau * factorial(2*bn)/(factorial(bn)*factorial(bn-1)) * sm
-    end
-    Gm = zeros(Dt,M1+1)
-    Gp = zeros(Dt,M1+1)
-    best = G0[M1]
-    for k in 0:M1-2
-        for n in (M1-2-k):-1:0
-            expr = G0[n+2] - G0[n+1]
-            if expr == 0
-                broken = true
-                break
-            end
-            expr = Gm[n+2] + (k+1)/expr
-            Gp[n+1] = expr
-            if isodd(k) && n == M1 - 2 - k
-                best = expr
-            end
-        end
-        if broken break end
-        for n in 0:(M1-k)
-            Gm[n+1] = G0[n+1]
-            G0[n+1] = Gp[n+1]
-        end
-    end
-    best
-end
-
-gwr(func, t::Float64) = gwr(func,t,16)
-gwr(func, t::BigFloat) = gwr(func,t,64)
-gwr(func, t::Integer, args...) = gwr(func,BigFloat(t), args...)
-gwr(func, t::Rational, args...) = gwr(func,float(t), args...)
-
-for f in (:ilt, :gwr)
-
-@eval function $(f)(func, ta::AbstractArray, args...)
-    length(ta) == 0 && return similar(ta)
-    a1 = $(f)(func, ta[1], args...)
-    a = similar(ta,typeof(a1))
-    for (i,t) in enumerate(ta)
-        a[i] = $(f)(func, t, args...)
-    end
-    a
-end
-
-end
-    
 end # module
