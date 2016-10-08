@@ -56,7 +56,7 @@ talbot(func,t::Rational,args...) = talbot(func,BigFloat(t),args...)
 """
     talbotarr{T}(func, ta::AbstractArray{T}, M)
 
-inverse laplace transform vectorized over `ta`. Each evaluation
+inverse Laplace transform vectorized over `ta`. Each evaluation
 of `func(s)` is used for all elements of `ta`. This may be faster
 than a vectorized application of `talbot`, but is in general, less accurate.
 `talbotarr` uses the "fixed" Talbot method.

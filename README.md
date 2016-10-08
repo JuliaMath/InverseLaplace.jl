@@ -16,6 +16,7 @@ Linux, OSX: [![Build Status](https://travis-ci.org/jlapeyre/InverseLaplace.jl.sv
     - [Setting parameters](index.md#Setting-parameters-1)
     - [Investigating performance](index.md#Investigating-performance-1)
     - [Lower-level interface](index.md#Lower-level-interface-1)
+    - [References](index.md#References-1)
 
 
 <a id='Inverse-Laplace-transform-types-1'></a>
@@ -39,7 +40,7 @@ return an object that estimates the inverse Laplace transform of the function `f
 `iltfunc` may be either `talbot` or `gwr`.
 
 
-<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/b575217a5d28d8374159d1406503d340e8baea54/src/InverseLaplace.jl#L19-L30' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/d31f16b19c3924b0a4f96ed19f9fa5c63df52c8d/src/InverseLaplace.jl#L19-L30' class='documenter-source'>source</a><br>
 
 <a id='InverseLaplace.Weeks' href='#InverseLaplace.Weeks'>#</a>
 **`InverseLaplace.Weeks`** &mdash; *Type*.
@@ -64,7 +65,7 @@ julia> ft(pi/2)
 ```
 
 
-<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/b575217a5d28d8374159d1406503d340e8baea54/src/weeks.jl#L28-L46' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/d31f16b19c3924b0a4f96ed19f9fa5c63df52c8d/src/weeks.jl#L28-L46' class='documenter-source'>source</a><br>
 
 <a id='InverseLaplace.WeeksErr' href='#InverseLaplace.WeeksErr'>#</a>
 **`InverseLaplace.WeeksErr`** &mdash; *Type*.
@@ -100,7 +101,7 @@ julia> ft(pi/2)[1] - cospi(1/2)  # cospi is more accurate
 ```
 
 
-<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/b575217a5d28d8374159d1406503d340e8baea54/src/weeks.jl#L162-L190' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/d31f16b19c3924b0a4f96ed19f9fa5c63df52c8d/src/weeks.jl#L162-L190' class='documenter-source'>source</a><br>
 
 
 <a id='Setting-parameters-1'></a>
@@ -122,7 +123,7 @@ setNterms{T<:AbstractILt}(ailt::T, Nterms::Integer)
 set the number of terms used in the inverse Laplace tranform `itrans`. If `ailt` stores internal data, it will be recomputed, so that subsequent calls `ailt(t)` reflect the new value of `Nterms`.
 
 
-<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/b575217a5d28d8374159d1406503d340e8baea54/src/InverseLaplace.jl#L43-L49' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/d31f16b19c3924b0a4f96ed19f9fa5c63df52c8d/src/InverseLaplace.jl#L43-L49' class='documenter-source'>source</a><br>
 
 <a id='InverseLaplace.optimize' href='#InverseLaplace.optimize'>#</a>
 **`InverseLaplace.optimize`** &mdash; *Function*.
@@ -140,7 +141,7 @@ The accuracy of the Weeks algorithm depends strongly on `t`. For some ranges of 
 `optimize` is expensive in CPU time and allocation, it performs nested single-parameter optimization over two parameterss.
 
 
-<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/b575217a5d28d8374159d1406503d340e8baea54/src/weeks.jl#L65-L79' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/d31f16b19c3924b0a4f96ed19f9fa5c63df52c8d/src/weeks.jl#L65-L79' class='documenter-source'>source</a><br>
 
 <a id='InverseLaplace.opteval' href='#InverseLaplace.opteval'>#</a>
 **`InverseLaplace.opteval`** &mdash; *Function*.
@@ -156,7 +157,7 @@ estimate an inverse Laplace transform at argument `t` using `w` after optimizing
 Use `Weeks` or `WeeksErr` to create `w`.
 
 
-<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/b575217a5d28d8374159d1406503d340e8baea54/src/weeks.jl#L90-L98' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/d31f16b19c3924b0a4f96ed19f9fa5c63df52c8d/src/weeks.jl#L90-L98' class='documenter-source'>source</a><br>
 
 <a id='InverseLaplace.setparameters' href='#InverseLaplace.setparameters'>#</a>
 **`InverseLaplace.setparameters`** &mdash; *Function*.
@@ -170,7 +171,7 @@ setparameters{T<:AbstractWeeks}(w::T, sigma, b, Nterms)
 Set the parameters for the inverse Laplace transform object `w` and recompute the internal data. Subsequent calls `w(t)` will use these parameters. If `Nterms` or both `Nterms` and `b` are omitted, then their current values are retained.
 
 
-<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/b575217a5d28d8374159d1406503d340e8baea54/src/weeks.jl#L106-L112' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/d31f16b19c3924b0a4f96ed19f9fa5c63df52c8d/src/weeks.jl#L106-L112' class='documenter-source'>source</a><br>
 
 
 <a id='Investigating-performance-1'></a>
@@ -200,7 +201,7 @@ julia> abserr(p,1.0)
 ```
 
 
-<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/b575217a5d28d8374159d1406503d340e8baea54/src/test.jl#L6-L24' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/d31f16b19c3924b0a4f96ed19f9fa5c63df52c8d/src/test.jl#L6-L24' class='documenter-source'>source</a><br>
 
 <a id='InverseLaplace.abserr' href='#InverseLaplace.abserr'>#</a>
 **`InverseLaplace.abserr`** &mdash; *Function*.
@@ -214,7 +215,7 @@ abserr(p::ILtPair, t)
 Compute the absolute error between the estimated inverse Laplace transform and "exact" numerical solution contained in `p` at the point `t`. See `ILtPair`.
 
 
-<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/b575217a5d28d8374159d1406503d340e8baea54/src/test.jl#L36-L41' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/d31f16b19c3924b0a4f96ed19f9fa5c63df52c8d/src/test.jl#L36-L41' class='documenter-source'>source</a><br>
 
 
 <a id='Lower-level-interface-1'></a>
@@ -236,7 +237,7 @@ ilt(func::Function, t::AbstractFloat, M::Integer=32)
 `ilt` is an alias for the default inverse Laplace transform method `talbot`.
 
 
-<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/b575217a5d28d8374159d1406503d340e8baea54/src/InverseLaplace.jl#L34-L38' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/d31f16b19c3924b0a4f96ed19f9fa5c63df52c8d/src/InverseLaplace.jl#L34-L38' class='documenter-source'>source</a><br>
 
 <a id='InverseLaplace.talbot' href='#InverseLaplace.talbot'>#</a>
 **`InverseLaplace.talbot`** &mdash; *Function*.
@@ -263,7 +264,7 @@ julia> talbot( s -> 1/s^3,  3)
 
 
 
-<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/b575217a5d28d8374159d1406503d340e8baea54/src/fixed_talbot.jl#L13-L30' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/d31f16b19c3924b0a4f96ed19f9fa5c63df52c8d/src/fixed_talbot.jl#L13-L30' class='documenter-source'>source</a><br>
 
 <a id='InverseLaplace.gwr' href='#InverseLaplace.gwr'>#</a>
 **`InverseLaplace.gwr`** &mdash; *Function*.
@@ -290,7 +291,7 @@ julia> gwr( s -> 1/s^3,  3.0)
 
 
 
-<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/b575217a5d28d8374159d1406503d340e8baea54/src/gwr.jl#L13-L33' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/d31f16b19c3924b0a4f96ed19f9fa5c63df52c8d/src/gwr.jl#L13-L33' class='documenter-source'>source</a><br>
 
 <a id='InverseLaplace.talbotarr' href='#InverseLaplace.talbotarr'>#</a>
 **`InverseLaplace.talbotarr`** &mdash; *Function*.
@@ -301,8 +302,22 @@ julia> gwr( s -> 1/s^3,  3.0)
 talbotarr{T}(func, ta::AbstractArray{T}, M)
 ```
 
-inverse laplace transform vectorized over `ta`. Each evaluation of `func(s)` is used for all elements of `ta`. This may be faster than a vectorized application of `talbot`, but is in general, less accurate. `talbotarr` uses the "fixed" Talbot method.
+inverse Laplace transform vectorized over `ta`. Each evaluation of `func(s)` is used for all elements of `ta`. This may be faster than a vectorized application of `talbot`, but is in general, less accurate. `talbotarr` uses the "fixed" Talbot method.
 
 
-<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/b575217a5d28d8374159d1406503d340e8baea54/src/fixed_talbot.jl#L56-L63' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/jlapeyre/InverseLaplace.jl/tree/d31f16b19c3924b0a4f96ed19f9fa5c63df52c8d/src/fixed_talbot.jl#L56-L63' class='documenter-source'>source</a><br>
+
+
+<a id='References-1'></a>
+
+## References
+
+
+J.A.C Weideman, *Algorithms for Parameter Selection in the Weeks Method for Inverting the Laplace Transform, SIAM Journal on Scientific Computing*, Vol. 21, pp. 111-128 **(1999)**
+
+
+Abate, J. and Valkó, P.P., *Multi-precision Laplace transform inversion International Journal for Numerical Methods in Engineering*, Vol. 60 (Iss. 5-7) pp 979–993 **(2004)**
+
+
+Valkó, P.P. and Abate, J., *Comparison of Sequence Accelerators for the Gaver Method of Numerical Laplace Transform Inversion*, Computers and Mathematics with Application,  Vol. 48 (Iss.3-40) pp. 629-636 **(2004)**
 
