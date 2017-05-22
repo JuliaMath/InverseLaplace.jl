@@ -8,20 +8,95 @@ export ILt, setNterms
 
 export  Weeks, WeeksErr, optimize, opteval, setparameters
 
+export Talbot, GWR, ILT
+
 export ILtPair, abserr, iltpair_power
 
 export ilt, talbot, gwr
 
 @compat abstract type AbstractILt end
 
+# """
+#    f = Talbot(Lfunc,Nterms=32)
+
+# The fixed Talbot inverse Laplace transform method for
+# inversion of function `Lfunc`.
+
+# ```
+# f(3.0)   # evaluate inversion at `3.0`
+# ```
+# """
+
+"""
+   ft::Talbot = Talbot(func::Function, Nterms::Integer=32)
+
+return `ft`, which estimates the inverse Laplace transform of `func` with
+the fixed Talbot algorithm. `ft(t)` evaluates the transform at `t`.
+
+# Example
+
+Compute the inverse transform of the transform of `cos` at argument `pi/2`.
+```
+julia> ft = Talbot(s -> s/(s^2+1), 80);
+
+julia> ft(pi/2)
+0.0
+```
+"""
+type Talbot{T<:Base.Callable} <: AbstractILt
+    LSfunc::T  # Laplace space function
+    Nterms::Int
+end
+
+Talbot(LSfunc::Base.Callable) = Talbot(LSfunc,32)
+
+"""
+   ft::GWR = GWR(func::Function, Nterms::Integer=16)
+
+return `ft`, which estimates the inverse Laplace transform of `func` with
+the GWR algorithm. `ft(t)` evaluates the transform at `t`.
+
+# Example
+
+Compute the inverse transform of the transform of `cos` at argument `pi/2`.
+```
+julia> ft = GWR(s -> s/(s^2+1), 16);
+
+julia> ft(pi/2)
+-0.001
+```
+"""
+type GWR{T<:Base.Callable} <: AbstractILt
+    LSfunc::T  # Laplace space function
+    Nterms::Int    
+end
+
+GWR(LSfunc::Base.Callable) = GWR(LSfunc,16)
+
+"""
+    ILT(function, Nterms=32)
+
+This is an alias for the default `Talbot()` method.
+"""
+ILT(args...) = Talbot(args...)
+
+function Base.show{T<:AbstractILt}(io::IO, ailt::T)
+    print(io, string(typeof(ailt)), "(Nterms=", ailt.Nterms,')')
+end
+
+# TODO get rid of this in favor of above.
+# Rely on broadcasting, as well.
+
 type ILt{T<:Base.Callable, V<:Base.Callable} <: AbstractILt
-    func::T
+    LSfunc::T
     iltfunc::V
     Nterms::Int
 end
 
 """
     itrans = ILt(func, iltfunc=talbot, Nterms=32)
+
+ * deprecated. Use, ILT, Talbot, GWR, or Weeks instead *
 
 return an object that estimates the inverse Laplace transform of
 the function `func` using the algorithm implemented by function `iltfunc`.
@@ -64,10 +139,16 @@ set the number of terms used in the inverse Laplace tranform `ailt`. If
 `ailt` stores internal data, it will be recomputed, so that subsequent
 calls `ailt(t)` reflect the new value of `Nterms`.
 """
-setNterms(ailt::ILt, N::Integer) = (ailt.Nterms = N)
+setNterms{T<:AbstractILt}(ailt::T, N::Integer) = (ailt.Nterms = N)
 
-(ailt::ILt)(t) = ailt.iltfunc(ailt.func, t, ailt.Nterms)
-(ailt::ILt)(t,N) = ailt.iltfunc(ailt.func, t, N)
+(ailt::ILt)(t) = ailt.iltfunc(ailt.LSfunc, t, ailt.Nterms)
+(ailt::ILt)(t,N) = ailt.iltfunc(ailt.LSfunc, t, N)
+
+(ailt::Talbot)(t) = talbot(ailt.LSfunc, t, ailt.Nterms)
+(ailt::Talbot)(t, n::Integer) = talbot(ailt.LSfunc, t, n)
+
+(ailt::GWR)(t) = gwr(ailt.LSfunc, t, ailt.Nterms)
+(ailt::GWR)(t, n::Integer) = gwr(ailt.LSfunc, t, n)
 
 include("fixed_talbot.jl")
 include("gwr.jl")

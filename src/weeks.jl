@@ -115,7 +115,7 @@ end
 setparameters(w,sigma,b) = setparameters(w,sigma,b,w.Nterms)
 setparameters(w,sigma) = setparameters(w,sigma,w.b)
 
-function setNterms{T<:AbstractWeeks}(w::T, Nterms)
+function setNterms{T<:AbstractWeeks}(w::T, Nterms::Integer)
     w.Nterms = Nterms
     _set_coefficients(w)
     w

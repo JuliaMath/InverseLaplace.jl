@@ -22,9 +22,17 @@ and its new syntax typically do not work at the time of this writing.
 Constructing these types returns a callable object that evaluates the inverse transform at specified points.
 
 ```@docs
-ILt
+ILT
+Talbot
+GWR
 Weeks
 WeeksErr
+```
+
+This method is deprecated (or should be)
+
+```@docs
+ILt
 ```
 
 ## Setting parameters
