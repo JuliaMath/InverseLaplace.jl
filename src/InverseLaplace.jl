@@ -21,7 +21,7 @@ type ILt{T<:Base.Callable, V<:Base.Callable} <: AbstractILt
 end
 
 """
-    itrans = ILt(func, iltfunc, Nterms=32)
+    itrans = ILt(func, iltfunc=talbot, Nterms=32)
 
 return an object that estimates the inverse Laplace transform of
 the function `func` using the algorithm implemented by function `iltfunc`.
