@@ -1,6 +1,7 @@
+using Compat
 using Optim
 
-abstract AbstractWeeks <: AbstractILt
+@compat abstract type AbstractWeeks <: AbstractILt end
 
 function Base.show{T<:AbstractWeeks}(io::IO, w::T)
     print(io, string(typeof(w)), "(Nterms=", w.Nterms, ",sigma=", w.sigma, ",b=", w.b,')')
@@ -136,8 +137,8 @@ function _get_coefficients_and_params(func, Nterms, sigma, b)
     M = 2 * Nterms
     a0 = real(_wcoeff(func,M,sigma,b))
     a1 = a0[2*Nterms+1:3*Nterms]
-    sa1 = sum(abs(a1))
-    sa2 = sum(abs(@view a0[3*Nterms+1:4*Nterms]))
+@compat   sa1 = sum(abs.(a1))
+@compat   sa2 = sum(abs.(@view a0[3*Nterms+1:4*Nterms]))
     (a1,sa1,sa2)
 end
 
@@ -196,8 +197,8 @@ end
 
 function eval_ilt(w::WeeksErr, t::AbstractArray)
     L = _laguerre(w.coefficients,2*w.b*t)
-    f = L .* exp((w.sigma-w.b)*t)
-    est = exp(w.sigma*t)*(w.sa2+eps()*w.sa1)
+@compat    f = L .* exp.((w.sigma-w.b)*t)
+@compat    est = exp.(w.sigma*t)*(w.sa2+eps()*w.sa1)
     (f,est)
 end
 
@@ -211,13 +212,13 @@ function _wcoeff(F,N,sig,b)
     n = -N:1:N-1
     h = pi/N
     th = h*(n+1//2)
-    y = b*cot(th/2)
+@compat    y = b*cot.(th/2)
     imunit = Complex(zero(eltype(y)),one(eltype(y)))
     s = sig +  imunit * y
     FF0 = map(F, s)
     FF = [ FF1 * (b + imunit * y1) for (FF1,y1) in zip(FF0,y)]
     a = fftshift(fft(fftshift(FF)))/(2*N)
-    exp(Complex(zero(h),-one(h)) * n*h/2) .* a
+@compat   exp.(Complex(zero(h),-one(h)) * n*h/2) .* a
 end
 
 function _laguerre(a::AbstractVector,x::AbstractArray)
@@ -258,15 +259,15 @@ function _werr2e(sig,F,t,N,sig0,sigmax,bmax)
     M = 2*N
     a = _wcoeff(F,M,sig,b)
     a1 = @view a[2*N+1:3*N]
-    sa1 = sum(abs(a1))
+@compat   sa1 = sum(abs.(a1))
     a2 = @view a[3*N+1:4*N]
-    sa2 = sum(abs(a2))
+@compat   sa2 = sum(abs.(a2))
     sig*t + log(sa2+eps()*sa1)
 end
 
 function _werr2t(b, F, N, sig)
     M = 2*N
     a = _wcoeff(F,M,sig,b)
-    sa2 = sum(abs( @view a[3*N+1:4*N]))
+@compat  sa2 = sum(abs.( @view a[3*N+1:4*N]))
     log(sa2)
 end

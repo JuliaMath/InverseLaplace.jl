@@ -36,7 +36,7 @@ function gwr(func, t, M)
     bM = convert(Dt,M)
     tau = log(convert(Dt,2))/t
     broken = false
-    Fi = Array(Dt,2 * M)
+    Fi = Array{Dt}(2 * M)
     for i in 1: 2 * M
         Fi[i] = func(i * tau)
     end

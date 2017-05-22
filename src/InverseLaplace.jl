@@ -2,6 +2,8 @@ VERSION >= v"0.4.0-dev+6521" && __precompile__()
 
 module InverseLaplace
 
+using Compat
+
 export ILt, setNterms
 
 export  Weeks, WeeksErr, optimize, opteval, setparameters
@@ -10,7 +12,7 @@ export ILtPair, abserr, iltpair_power
 
 export ilt, talbot, gwr
 
-abstract AbstractILt
+@compat abstract type AbstractILt end
 
 type ILt{T<:Base.Callable, V<:Base.Callable} <: AbstractILt
     func::T
