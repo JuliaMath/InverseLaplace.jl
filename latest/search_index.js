@@ -125,7 +125,7 @@ var documenterSearchIndex = {"docs": [
     "page": "InverseLaplace",
     "title": "InverseLaplace.ILtPair",
     "category": "type",
-    "text": "p = ILtPair(ilt::AbstractILt, ft::Function)\n\nreturn an object of type ILtPair that associates ilt the inverse Laplace transform of a function with it \"exact\" numerical inverse ft. Calling abserr(p,t) returns the absolute error between the inverse transform and the exact value.        \n\nExample\n\nThis example compares the inversion using the Weeks algorithm of the Laplace transform of cos(t) to its exact value at t=1.0.\n\njulia> p = ILtPair( Weeks( s -> s/(1+s^2) ), cos);\njulia> abserr(p,1.0)\n\n0.0\n\n\n\n"
+    "text": "p = ILtPair(ilt::AbstractILt, ft::Function)\n\nreturn an object of type ILtPair that associates ilt the inverse Laplace transform of a function with it \"exact\" numerical inverse ft. Calling abserr(p,t) returns the absolute error between the inverse transform and the exact value.\n\nExample\n\nThis example compares the inversion using the Weeks algorithm of the Laplace transform of cos(t) to its exact value at t=1.0.\n\njulia> p = ILtPair( Weeks( s -> s/(1+s^2) ), cos);\njulia> abserr(p,1.0)\n\n0.0\n\n\n\n"
 },
 
 {
