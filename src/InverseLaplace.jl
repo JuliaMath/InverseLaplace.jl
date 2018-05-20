@@ -133,7 +133,7 @@ ILt(func) = ILt(func, talbot, 32)
 
 
 """
-    setNterms{T<:AbstractILt}(ailt::T, Nterms::Integer)
+    setNterms(ailt::AbstractILt, Nterms::Integer)
 
 set the number of terms used in the inverse Laplace tranform `ailt`. If
 `ailt` stores internal data, it will be recomputed, so that subsequent
