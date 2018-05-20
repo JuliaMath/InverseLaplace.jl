@@ -13,7 +13,7 @@ var documenterSearchIndex = {"docs": [
     "page": "InverseLaplace",
     "title": "InverseLaplace",
     "category": "section",
-    "text": "Numerical inverse Laplace transform."
+    "text": "Numerical inverse Laplace transform.The source repository is https://github.com/jlapeyre/InverseLaplace.jl ."
 },
 
 {
@@ -73,11 +73,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Inverse-Laplace-transform-types-1",
+    "location": "index.html#Inverse-Laplace-transform-methods-1",
     "page": "InverseLaplace",
-    "title": "Inverse Laplace transform types",
+    "title": "Inverse Laplace transform methods",
     "category": "section",
-    "text": "Constructing these types returns a callable object that evaluates the inverse transform at specified points.ILT\nTalbot\nGWR\nWeeks\nWeeksErr"
+    "text": "Constructing these Julia types, corresponding to different numerical methods, returns a callable object that evaluates the inverse transform at specified points.ILT\nTalbot\nGWR\nWeeks\nWeeksErr"
 },
 
 {
