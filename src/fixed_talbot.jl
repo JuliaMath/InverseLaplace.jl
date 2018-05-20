@@ -21,7 +21,7 @@ If `BigFloat` precision is larger than default, try increasing `M`. `talbot is v
 # Example
 
 ```jldoctest
-julia> talbot( s -> 1/s^3,  3)
+julia> InverseLaplace.talbot( s -> 1/s^3,  3)
 4.50000000000153
 ```
 

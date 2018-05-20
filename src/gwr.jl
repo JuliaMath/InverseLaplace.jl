@@ -21,7 +21,7 @@ If `BigFloat` precision is larger than default, try increasing `M`.
 # Example
 
 ```jldoctest
-julia> gwr( s -> 1/s^3,  3.0)
+julia> InverseLaplace.gwr( s -> 1/s^3,  3.0)
 4.499985907607361
 ```
 
