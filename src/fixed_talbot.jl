@@ -47,7 +47,7 @@ talbot(func,t::Rational,args...) = talbot(func,BigFloat(t),args...)
 # t are from tmax
 
 """
-    talbotarr{T}(func, ta::AbstractArray{T}, M)
+    talbotarr(func, ta::AbstractArray, M)
 
 inverse Laplace transform vectorized over `ta`. Each evaluation
 of `func(s)` is used for all elements of `ta`. This may be faster

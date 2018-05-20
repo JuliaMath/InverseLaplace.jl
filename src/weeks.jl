@@ -64,7 +64,7 @@ function optimize(w::Weeks, t)
 end
 
 """
-    optimize{T<:AbstractWeeks}(w::T, t, Nterms)
+    optimize(w::AbstractWeeks, t, Nterms)
 
 optimize the parameters of the inverse Laplace transform `w` at the
 argument `t`. If `Nterms` is ommitted, the current value of `w.Nterms`
