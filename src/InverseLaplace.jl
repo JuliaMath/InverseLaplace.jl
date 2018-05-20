@@ -155,12 +155,4 @@ include("gwr.jl")
 include("weeks.jl")
 include("test.jl")
 
-# Broadcasting currently does not work because the first arg is a function
-# talbot.( s -> 1/s^2 , [1.0,2.0])
-# ERROR: MethodError: no method matching size(::##9#10)
-#
-for f in (:talbot, :gwr)
-    @eval $(f)(func, ta::AbstractArray, args...) =  [ $(f)(func, t, args...) for t in ta ]
-end
-
 end # module

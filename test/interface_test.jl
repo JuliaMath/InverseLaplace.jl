@@ -1,6 +1,6 @@
 fl = ILt(s -> 1/s^3, talbot)
 @test isapprox( fl(1.0), 0.5; atol =  1e-9)
-@test isapprox( fl([1.0,2.0]), [0.5, 2.0]; atol =  1e-9)
+@test isapprox( fl.([1.0,2.0]), [0.5, 2.0]; atol =  1e-9)
 
 fl = ILt(s -> 1/s^3, gwr,8)
 @test isapprox( fl(1.0), 0.5; atol = 1e-5)
