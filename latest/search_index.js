@@ -13,7 +13,7 @@ var documenterSearchIndex = {"docs": [
     "page": "InverseLaplace",
     "title": "InverseLaplace",
     "category": "section",
-    "text": "Numerical inverse Laplace transform.The source repository is https://github.com/jlapeyre/InverseLaplace.jl ."
+    "text": "Numerical inverse Laplace transform.The source repository is https://github.com/jlapeyre/InverseLaplace.jl."
 },
 
 {
