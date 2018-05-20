@@ -2,7 +2,7 @@
 
 *Numerical inverse Laplace transform.*
 
-The source repository is https://github.com/jlapeyre/InverseLaplace.jl .
+The source repository is [https://github.com/jlapeyre/InverseLaplace.jl](https://github.com/jlapeyre/InverseLaplace.jl).
 
 ## Contents
 
