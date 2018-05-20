@@ -117,7 +117,7 @@ var documenterSearchIndex = {"docs": [
     "page": "InverseLaplace",
     "title": "Setting parameters",
     "category": "section",
-    "text": "The inverse Laplace tranform routines are not black boxes. They are prone to instability and can give inaccurate or wrong results. There are some parameters you can set to try to minimize these problems.setNterms\noptimize\nopteval\nsetparameters"
+    "text": "The inverse Laplace tranform routines should not be treated as black boxes. They are prone to instability and can give inaccurate or wrong results. There are some parameters you can set to try to minimize these problems.setNterms\noptimize\nopteval\nsetparameters"
 },
 
 {
