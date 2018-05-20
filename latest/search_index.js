@@ -85,7 +85,7 @@ var documenterSearchIndex = {"docs": [
     "page": "InverseLaplace",
     "title": "InverseLaplace.setNterms",
     "category": "function",
-    "text": "setNterms{T<:AbstractILt}(ailt::T, Nterms::Integer)\n\nset the number of terms used in the inverse Laplace tranform ailt. If ailt stores internal data, it will be recomputed, so that subsequent calls ailt(t) reflect the new value of Nterms.\n\n\n\n"
+    "text": "setNterms(ailt::AbstractILt, Nterms::Integer)\n\nset the number of terms used in the inverse Laplace tranform ailt. If ailt stores internal data, it will be recomputed, so that subsequent calls ailt(t) reflect the new value of Nterms.\n\n\n\n"
 },
 
 {
