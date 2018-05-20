@@ -93,7 +93,7 @@ var documenterSearchIndex = {"docs": [
     "page": "InverseLaplace",
     "title": "InverseLaplace.optimize",
     "category": "function",
-    "text": "optimize{T<:AbstractWeeks}(w::T, t, Nterms)\n\noptimize the parameters of the inverse Laplace transform w at the argument t. If Nterms is ommitted, the current value of w.Nterms is retained.\n\nThe accuracy of the Weeks algorithm depends strongly on t. For some ranges of t, the accuracy is relatively insensitive to the parameters. For other values of t, even using optimized parameters results in estimates of the inverse transform that are extremely inaccurate.\n\noptimize is expensive in CPU time and allocation, it performs nested single-parameter optimization over two parameterss.\n\n\n\n"
+    "text": "optimize(w::AbstractWeeks, t, Nterms)\n\noptimize the parameters of the inverse Laplace transform w at the argument t. If Nterms is ommitted, the current value of w.Nterms is retained.\n\nThe accuracy of the Weeks algorithm depends strongly on t. For some ranges of t, the accuracy is relatively insensitive to the parameters. For other values of t, even using optimized parameters results in estimates of the inverse transform that are extremely inaccurate.\n\noptimize is expensive in CPU time and allocation, it performs nested single-parameter optimization over two parameterss.\n\n\n\n"
 },
 
 {
@@ -173,7 +173,7 @@ var documenterSearchIndex = {"docs": [
     "page": "InverseLaplace",
     "title": "InverseLaplace.talbotarr",
     "category": "function",
-    "text": "talbotarr{T}(func, ta::AbstractArray{T}, M)\n\ninverse Laplace transform vectorized over ta. Each evaluation of func(s) is used for all elements of ta. This may be faster than a vectorized application of talbot, but is in general, less accurate. talbotarr uses the \"fixed\" Talbot method.\n\n\n\n"
+    "text": "talbotarr(func, ta::AbstractArray, M)\n\ninverse Laplace transform vectorized over ta. Each evaluation of func(s) is used for all elements of ta. This may be faster than a vectorized application of talbot, but is in general, less accurate. talbotarr uses the \"fixed\" Talbot method.\n\n\n\n"
 },
 
 {
