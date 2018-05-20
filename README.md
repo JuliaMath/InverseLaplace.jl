@@ -10,4 +10,8 @@ This implements some numerical methods for computing inverse Laplace transforms 
 
 See the documentation https://jlapeyre.github.io/InverseLaplace.jl/latest .
 
+Note: A small part of `InverseLaplace.jl` depends on `Optim.jl`, which is currently
+broken on Julia v0.7. So `InverseLaplace.jl` is broken on Julia v0.7.
+
+
 Note: the last version of this module supporting Julia v0.4 is tagged v0.0.2
