@@ -1,5 +1,5 @@
 using Compat
-using Optim
+import Optim
 
 @compat abstract type AbstractWeeks <: AbstractILt end
 
