@@ -2,6 +2,8 @@
 
 *Numerical inverse Laplace transform.*
 
+The source repository is https://github.com/jlapeyre/InverseLaplace.jl .
+
 ## Contents
 
 ```@contents
@@ -12,9 +14,10 @@
 ```@index
 ```
 
-## Inverse Laplace transform types
+## Inverse Laplace transform methods
 
-Constructing these types returns a callable object that evaluates the inverse transform at specified points.
+Constructing these Julia types, corresponding to different numerical methods,
+returns a callable object that evaluates the inverse transform at specified points.
 
 ```@docs
 ILT
