@@ -69,7 +69,7 @@ var documenterSearchIndex = {"docs": [
     "page": "InverseLaplace",
     "title": "InverseLaplace.WeeksErr",
     "category": "type",
-    "text": "w::WeeksErr = WeeksErr(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0)\n\nreturn w, which estimates the inverse Laplace transform of func via the Weeks algorithm. w(t) returns a tuple containing the inverse transform at t and an error estimate. The accuracy of the inversion depends on the choice of sigma and b.\n\nExample\n\nCompute the inverse transform of the transform of cos, and an error estimate, at argument pi/2 using 80 terms.\n\njulia> ft = Weeks(s -> s/(s^2+1), 80);\n\njulia> ft(pi/2)\n(0.0,3.0872097665938698e-15)\n\nThis estimate is more accurate than cos(pi/2).\n\njulia> ft(pi/2)[1] - cos(pi/2)\n-6.123233995736766e-17\n\njulia> ft(pi/2)[1] - 0.0         # exact value\n0.0\n\njulia> ft(pi/2)[1] - cospi(1/2)  # cospi is more accurate\n0.0\n\n\n\n"
+    "text": "w::WeeksErr = WeeksErr(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0)\n\nreturn w, which estimates the inverse Laplace transform of func via the Weeks algorithm. w(t) returns a tuple containing the inverse transform at t and an error estimate. The accuracy of the inversion depends on the choice of sigma and b.\n\nExample\n\nCompute the inverse transform of the transform of cos, and an error estimate, at argument pi/2 using 80 terms.\n\njulia> ft = WeeksErr(s -> s/(s^2+1), 80);\n\njulia> ft(pi/2)\n(0.0,3.0872097665938698e-15)\n\nThis estimate is more accurate than cos(pi/2).\n\njulia> ft(pi/2)[1] - cos(pi/2)\n-6.123233995736766e-17\n\njulia> ft(pi/2)[1] - 0.0         # exact value\n0.0\n\njulia> ft(pi/2)[1] - cospi(1/2)  # cospi is more accurate\n0.0\n\n\n\n"
 },
 
 {
