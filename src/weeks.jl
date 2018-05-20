@@ -166,7 +166,7 @@ inversion depends on the choice of `sigma` and `b`.
 
 Compute the inverse transform of the transform of `cos`, and an error estimate, at argument `pi/2` using `80` terms.
 ```
-julia> ft = Weeks(s -> s/(s^2+1), 80);
+julia> ft = WeeksErr(s -> s/(s^2+1), 80);
 
 julia> ft(pi/2)
 (0.0,3.0872097665938698e-15)
