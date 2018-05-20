@@ -80,4 +80,3 @@ gwr(func, t::Float64) = gwr(func,t,16)
 gwr(func, t::BigFloat) = gwr(func,t,64)
 gwr(func, t::Integer, args...) = gwr(func,BigFloat(t), args...)
 gwr(func, t::Rational, args...) = gwr(func,float(t), args...)
-

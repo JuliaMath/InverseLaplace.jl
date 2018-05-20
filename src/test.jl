@@ -8,7 +8,7 @@ end
 
 return an object of type `ILtPair` that associates `ilt` the inverse Laplace transform of
 a function with it "exact" numerical inverse `ft`. Calling `abserr(p,t)` returns the
-absolute error between the inverse transform and the exact value.        
+absolute error between the inverse transform and the exact value.
 
 # Example
 

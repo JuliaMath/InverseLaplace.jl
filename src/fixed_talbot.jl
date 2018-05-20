@@ -3,13 +3,6 @@
 # International Journal for Numerical Methods in Engineering, Vol. 60 (Iss. 5-7)  2004  pp 979–993
 # Fixed Talbot method
 
-# type Talbot <: AbstractILt
-#     func::Function
-#     Nterms::Int
-# end
-
-# Talbot(func::Function) = Talbot(func, 32)
-
 """
     talbot(func::Function, t::AbstractFloat, M::Integer=32)
 
@@ -61,7 +54,7 @@ of `func(s)` is used for all elements of `ta`. This may be faster
 than a vectorized application of `talbot`, but is in general, less accurate.
 `talbotarr` uses the "fixed" Talbot method.
 """
-function talbotarr{T}(func, t::AbstractArray{T}, M)
+function talbotarr(func, t::AbstractArray, M)
     tt = typeof(t[1])
     bM = convert(tt,M)
     terms = similar(t)
@@ -87,6 +80,7 @@ function talbotarr{T}(func, t::AbstractArray{T}, M)
 end
 
 talbotarr(func,t::AbstractArray) = talbotarr(func,t,32)
-talbotarr(func,t::AbstractArray{BigFloat}) = talbotarr(func,t,64)
+talbotarr(func,t::Vector{BigFloat}) = talbotarr(func,t,64)
+#talbotarr(func,t::T) = talbotarr(func,t,64) where T <: AbstractArray{V} where V <: BigFloat
 
 ####

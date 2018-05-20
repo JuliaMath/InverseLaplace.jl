@@ -78,7 +78,7 @@ the inverse transform that are extremely inaccurate.
 `optimize` is expensive in CPU time and allocation, it performs nested single-parameter
 optimization over two parameterss.
 """
-function optimize{T<:AbstractWeeks}(w::T, t, N)
+function optimize(w::AbstractWeeks, t, N)
     w.Nterms = N
     optimize(w,t)
 end
@@ -92,12 +92,12 @@ current value of `w.Nterms` is used.
 
 Use `Weeks` or `WeeksErr` to create `w`.
 """
-function opteval{T<:AbstractWeeks}(w::T, t, N)
+function opteval(w::AbstractWeeks, t, N)
     optimize(w,t, N)
     w(t)
 end
 
-opteval{T<:AbstractWeeks}(w::T, t) = opteval(w,t,w.Nterms)
+opteval(w::AbstractWeeks, t) = opteval(w,t,w.Nterms)
 
 """
     setparameters{T<:AbstractWeeks}(w::T, sigma, b, Nterms)
@@ -106,7 +106,7 @@ Set the parameters for the inverse Laplace transform object `w` and recompute
 the internal data. Subsequent calls `w(t)` will use these parameters. If `Nterms`
 or both `Nterms` and `b` are omitted, then their current values are retained.
 """
-function setparameters{T<:AbstractWeeks}(w::T, sigma, b, Nterms)
+function setparameters(w::AbstractWeeks, sigma, b, Nterms)
     (w.sigma, w.b, w.Nterms) = (sigma,b,Nterms)
     _set_coefficients(w)
     w
@@ -115,7 +115,7 @@ end
 setparameters(w,sigma,b) = setparameters(w,sigma,b,w.Nterms)
 setparameters(w,sigma) = setparameters(w,sigma,w.b)
 
-function setNterms{T<:AbstractWeeks}(w::T, Nterms::Integer)
+function setNterms(w::AbstractWeeks, Nterms::Integer)
     w.Nterms = Nterms
     _set_coefficients(w)
     w

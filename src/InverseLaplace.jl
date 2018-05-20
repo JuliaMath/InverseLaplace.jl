@@ -68,7 +68,7 @@ julia> ft(pi/2)
 """
 type GWR{T<:Base.Callable} <: AbstractILt
     LSfunc::T  # Laplace space function
-    Nterms::Int    
+    Nterms::Int
 end
 
 GWR(LSfunc::Base.Callable) = GWR(LSfunc,16)
@@ -80,7 +80,7 @@ This is an alias for the default `Talbot()` method.
 """
 ILT(args...) = Talbot(args...)
 
-function Base.show{T<:AbstractILt}(io::IO, ailt::T)
+function Base.show(io::IO, ailt::AbstractILt)
     print(io, string(typeof(ailt)), "(Nterms=", ailt.Nterms,')')
 end
 
@@ -114,9 +114,9 @@ julia> itr = ILt( s -> 1/(1+s^2), talbot);
 
 julia> itr([ pi/4, pi/2, 3*pi/4, -pi])
 4-element Array{Float64,1}:
-  0.707107   
-  1.0        
-  0.707107   
+  0.707107
+  1.0
+  0.707107
  -3.66676e-12
 ```
 """
@@ -139,7 +139,7 @@ set the number of terms used in the inverse Laplace tranform `ailt`. If
 `ailt` stores internal data, it will be recomputed, so that subsequent
 calls `ailt(t)` reflect the new value of `Nterms`.
 """
-setNterms{T<:AbstractILt}(ailt::T, N::Integer) = (ailt.Nterms = N)
+setNterms(ailt::AbstractILt, N::Integer) = (ailt.Nterms = N)
 
 (ailt::ILt)(t) = ailt.iltfunc(ailt.LSfunc, t, ailt.Nterms)
 (ailt::ILt)(t,N) = ailt.iltfunc(ailt.LSfunc, t, N)
