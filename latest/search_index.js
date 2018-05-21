@@ -45,7 +45,7 @@ var documenterSearchIndex = {"docs": [
     "page": "InverseLaplace",
     "title": "InverseLaplace.Talbot",
     "category": "type",
-    "text": "ft::Talbot = Talbot(func::Function, Nterms::Integer=32)\n\nreturn ft, which estimates the inverse Laplace transform of func with the fixed Talbot algorithm. ft(t) evaluates the transform at t.\n\nExample\n\nCompute the inverse transform of the transform of cos at argument pi/2.\n\njulia> ft = Talbot(s -> s/(s^2+1), 80);\n\njulia> ft(pi/2)\n0.0\n\n\n\n"
+    "text": "ft::Talbot = Talbot(func::Function, Nterms::Integer=32)\n\nreturn ft, which estimates the inverse Laplace transform of func with the fixed Talbot algorithm. ft(t) evaluates the transform at t.  You may want to tune Nterms together with setprecision(BigFloat,x).\n\nExample\n\nCompute the inverse transform of the transform of cos at argument pi/2.\n\njulia> ft = Talbot(s -> s/(s^2+1), 80);\n\njulia> ft(pi/2)\n0.0\n\nNote that given Float64 input, the precision of the returned value may not be satisfactory.\n\njulia> ft(pi/2)\n-3.5366510684573195e-5\n\njulia> Float64(ft(big(pi)/2))\n2.114425886215604e-49\n\n\n\n"
 },
 
 {
@@ -121,27 +121,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#InverseLaplace.ILtPair",
-    "page": "InverseLaplace",
-    "title": "InverseLaplace.ILtPair",
-    "category": "type",
-    "text": "p = ILtPair(ilt::AbstractILt, ft::Function)\n\nreturn an object of type ILtPair that associates ilt the inverse Laplace transform of a function with it \"exact\" numerical inverse ft. Calling abserr(p,t) returns the absolute error between the inverse transform and the exact value.\n\nExample\n\nThis example compares the inversion using the Weeks algorithm of the Laplace transform of cos(t) to its exact value at t=1.0.\n\njulia> p = ILtPair( Weeks( s -> s/(1+s^2) ), cos);\njulia> abserr(p,1.0)\n\n0.0\n\n\n\n"
-},
-
-{
-    "location": "index.html#InverseLaplace.abserr",
-    "page": "InverseLaplace",
-    "title": "InverseLaplace.abserr",
-    "category": "function",
-    "text": "abserr(p::ILtPair, t)\n\nCompute the absolute error between the estimated inverse Laplace transform and \"exact\" numerical solution contained in p at the point t. See ILtPair.\n\n\n\n"
-},
-
-{
     "location": "index.html#Analzying-accuracy-1",
     "page": "InverseLaplace",
     "title": "Analzying accuracy",
     "category": "section",
-    "text": "ILtPair\nabserr"
+    "text": "ILtPair\nabserr\nTransformPair\niltpair_power"
 },
 
 {
