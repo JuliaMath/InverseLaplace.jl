@@ -16,31 +16,30 @@ export ilt, talbot, gwr
 
 @compat abstract type AbstractILt end
 
-# """
-#    f = Talbot(Lfunc,Nterms=32)
-
-# The fixed Talbot inverse Laplace transform method for
-# inversion of function `Lfunc`.
-
-# ```
-# f(3.0)   # evaluate inversion at `3.0`
-# ```
-# """
-
 """
    ft::Talbot = Talbot(func::Function, Nterms::Integer=32)
 
 return `ft`, which estimates the inverse Laplace transform of `func` with
-the fixed Talbot algorithm. `ft(t)` evaluates the transform at `t`.
+the fixed Talbot algorithm. `ft(t)` evaluates the transform at `t`.  You may
+want to tune `Nterms` together with `setprecision(BigFloat,x)`.
 
 # Example
 
 Compute the inverse transform of the transform of `cos` at argument `pi/2`.
-```
+```julia-repl
 julia> ft = Talbot(s -> s/(s^2+1), 80);
 
 julia> ft(pi/2)
 0.0
+```
+
+Note that given `Float64` input, the precision of the returned value may not be satisfactory.
+```julia-repl
+julia> ft(pi/2)
+-3.5366510684573195e-5
+
+julia> Float64(ft(big(pi)/2))
+2.114425886215604e-49
 ```
 """
 type Talbot{T<:Base.Callable} <: AbstractILt

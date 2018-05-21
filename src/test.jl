@@ -1,6 +1,12 @@
-type TransformPair
-    ft
-    fs
+"""
+    TransformPair{T,V}
+
+A pair of functions for analyzing an inverse Laplace transform method.
+Field `ft` is the real-space function. Field `fs` is the Laplace-space function.
+"""
+type TransformPair{T,V}
+    ft::T
+    fs::V
 end
 
 """
@@ -22,11 +28,26 @@ julia> abserr(p,1.0)
 ```
 
 """
-type ILtPair{T} <: AbstractILt
+type ILtPair{T,V}
     ilt::T
-    ft
+    ft::V
 end
 
+# type ILtPair{T,V} <: AbstractILt
+
+"""
+    iltpair_power(n)
+
+Return a `TransformPair` for the power function `x^n`. This can be used
+to construct an `ILTPair`.
+
+```julia-repl
+julia> p  = Talbot(iltpair_power(3));
+
+julia> Float64(abserr(p,1)) # test Talbot method for Laplace transform of x^3, evaluated at 1
+2.0820366247539812e-26
+```
+"""
 function iltpair_power(n)
     fs = s -> s^(- n - 1) * gamma(1+n)
     ft = t -> t^n
