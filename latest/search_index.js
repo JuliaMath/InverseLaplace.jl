@@ -121,11 +121,43 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "index.html#InverseLaplace.ILtPair",
+    "page": "InverseLaplace",
+    "title": "InverseLaplace.ILtPair",
+    "category": "type",
+    "text": "ILtPair(ilt::AbstractILt, ft::Function)\n\nreturn an object of type ILtPair that associates ilt the inverse Laplace transform of a function with it \"exact\" numerical inverse ft. Calling abserr(p,t) returns the absolute error between the inverse transform and the exact value.\n\nExample\n\nThis example compares the inversion using the Weeks algorithm of the Laplace transform of cos(t) to its exact value at t=1.0.\n\njulia> p = ILtPair( Weeks( s -> s/(1+s^2) ), cos);\njulia> abserr(p,1.0)\n\n0.0\n\n\n\n"
+},
+
+{
+    "location": "index.html#InverseLaplace.abserr",
+    "page": "InverseLaplace",
+    "title": "InverseLaplace.abserr",
+    "category": "function",
+    "text": "abserr(p::ILtPair, t)\n\nCompute the absolute error between the estimated inverse Laplace transform and \"exact\" numerical solution contained in p at the point t. See ILtPair.\n\n\n\n"
+},
+
+{
+    "location": "index.html#InverseLaplace.iltpair_power",
+    "page": "InverseLaplace",
+    "title": "InverseLaplace.iltpair_power",
+    "category": "function",
+    "text": "iltpair_power(n)\n\nReturn a TransformPair for the power function x^n. This can be used to construct an ILTPair.\n\njulia> p  = Talbot(iltpair_power(3));\n\njulia> Float64(abserr(p,1)) # test Talbot method for Laplace transform of x^3, evaluated at 1\n2.0820366247539812e-26\n\n\n\n"
+},
+
+{
+    "location": "index.html#InverseLaplace.TransformPair",
+    "page": "InverseLaplace",
+    "title": "InverseLaplace.TransformPair",
+    "category": "type",
+    "text": "TransformPair{T,V}\n\nA pair of functions for analyzing an inverse Laplace transform method. Field ft is the real-space function. Field fs is the Laplace-space function.\n\n\n\n"
+},
+
+{
     "location": "index.html#Analzying-accuracy-1",
     "page": "InverseLaplace",
     "title": "Analzying accuracy",
     "category": "section",
-    "text": "ILtPair\nabserr\nTransformPair\niltpair_power"
+    "text": "ILtPair\nabserr\niltpair_power\nTransformPair"
 },
 
 {
