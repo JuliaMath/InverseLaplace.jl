@@ -1,3 +1,5 @@
+
+
 """
     TransformPair{T,V}
 
@@ -10,7 +12,7 @@ type TransformPair{T,V}
 end
 
 """
-    p = ILtPair(ilt::AbstractILt, ft::Function)
+    ILtPair(ilt::AbstractILt, ft::Function)
 
 return an object of type `ILtPair` that associates `ilt` the inverse Laplace transform of
 a function with it "exact" numerical inverse `ft`. Calling `abserr(p,t)` returns the
@@ -26,7 +28,6 @@ julia> abserr(p,1.0)
 
 0.0
 ```
-
 """
 type ILtPair{T,V}
     ilt::T

@@ -44,8 +44,8 @@ setparameters
 ```@docs
 ILtPair
 abserr
-TransformPair
 iltpair_power
+TransformPair
 ```
 
 ## Lower-level interface

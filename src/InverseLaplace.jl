@@ -4,14 +4,12 @@ module InverseLaplace
 
 using Compat
 
+# I have to export everything in order for Documenter.jl to find
+# the strings. A few hours of work would probably be enough to solve the problem.
 export ILt, setNterms
-
-export  Weeks, WeeksErr, optimize, opteval, setparameters
-
+export Weeks, WeeksErr, optimize, opteval, setparameters
 export Talbot, GWR, ILT
-
-export ILtPair, abserr, iltpair_power
-
+export TransformPair, ILtPair, abserr, iltpair_power
 export ilt, talbot, gwr
 
 @compat abstract type AbstractILt end
