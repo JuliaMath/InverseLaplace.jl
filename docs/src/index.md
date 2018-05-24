@@ -4,6 +4,8 @@
 
 The source repository is [https://github.com/jlapeyre/InverseLaplace.jl](https://github.com/jlapeyre/InverseLaplace.jl).
 
+This package provides three numerical algorithms for numerically inverting Laplace transforms.
+
 ## Contents
 
 ```@contents

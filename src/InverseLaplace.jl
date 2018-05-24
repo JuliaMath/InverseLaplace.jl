@@ -28,17 +28,19 @@ Compute the inverse transform of the transform of `cos` at argument `pi/2`.
 julia> ft = Talbot(s -> s/(s^2+1), 80);
 
 julia> ft(pi/2)
-0.0
+-3.5366510684573195e-5
 ```
 
 Note that given `Float64` input, the precision of the returned value may not be satisfactory.
 ```julia-repl
-julia> ft(pi/2)
--3.5366510684573195e-5
-
 julia> Float64(ft(big(pi)/2))
 2.114425886215604e-49
 ```
+
+!!! note
+    This function uses the fixed Talbot method. It evaluates the Laplace transform
+    function for complex arguments. The GWR method is, in general, less accurate and
+    less stable, but does not evaluate the Laplace transform function for complex arguments.
 """
 type Talbot{T<:Base.Callable} <: AbstractILt
     LSfunc::T  # Laplace space function
