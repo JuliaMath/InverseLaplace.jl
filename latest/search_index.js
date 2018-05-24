@@ -13,7 +13,7 @@ var documenterSearchIndex = {"docs": [
     "page": "InverseLaplace",
     "title": "InverseLaplace",
     "category": "section",
-    "text": "Numerical inverse Laplace transform.The source repository is https://github.com/jlapeyre/InverseLaplace.jl."
+    "text": "Numerical inverse Laplace transform.The source repository is https://github.com/jlapeyre/InverseLaplace.jl.This package provides three numerical algorithms for numerically inverting Laplace transforms."
 },
 
 {
@@ -45,7 +45,7 @@ var documenterSearchIndex = {"docs": [
     "page": "InverseLaplace",
     "title": "InverseLaplace.Talbot",
     "category": "type",
-    "text": "ft::Talbot = Talbot(func::Function, Nterms::Integer=32)\n\nreturn ft, which estimates the inverse Laplace transform of func with the fixed Talbot algorithm. ft(t) evaluates the transform at t.  You may want to tune Nterms together with setprecision(BigFloat,x).\n\nExample\n\nCompute the inverse transform of the transform of cos at argument pi/2.\n\njulia> ft = Talbot(s -> s/(s^2+1), 80);\n\njulia> ft(pi/2)\n0.0\n\nNote that given Float64 input, the precision of the returned value may not be satisfactory.\n\njulia> ft(pi/2)\n-3.5366510684573195e-5\n\njulia> Float64(ft(big(pi)/2))\n2.114425886215604e-49\n\n\n\n"
+    "text": "ft::Talbot = Talbot(func::Function, Nterms::Integer=32)\n\nreturn ft, which estimates the inverse Laplace transform of func with the fixed Talbot algorithm. ft(t) evaluates the transform at t.  You may want to tune Nterms together with setprecision(BigFloat,x).\n\nExample\n\nCompute the inverse transform of the transform of cos at argument pi/2.\n\njulia> ft = Talbot(s -> s/(s^2+1), 80);\n\njulia> ft(pi/2)\n-3.5366510684573195e-5\n\nNote that given Float64 input, the precision of the returned value may not be satisfactory.\n\njulia> Float64(ft(big(pi)/2))\n2.114425886215604e-49\n\nnote: Note\nThis function uses the fixed Talbot method. It evaluates the Laplace transform function for complex arguments. The GWR method is, in general, less accurate and less stable, but does not evaluate the Laplace transform function for complex arguments.\n\n\n\n"
 },
 
 {
