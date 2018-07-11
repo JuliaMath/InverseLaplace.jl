@@ -1,15 +1,16 @@
-using Compat
-import Optim
+# import Optim  # broken
+import AbstractFFTs
+import FFTW
 
-@compat abstract type AbstractWeeks <: AbstractILt end
+abstract type AbstractWeeks <: AbstractILt end
 
-function Base.show{T<:AbstractWeeks}(io::IO, w::T)
+function Base.show(io::IO, w::AbstractWeeks)
     print(io, string(typeof(w)), "(Nterms=", w.Nterms, ",sigma=", w.sigma, ",b=", w.b,')')
 end
 
-#### Weeks
+### Weeks
 
-type Weeks <: AbstractWeeks
+mutable struct Weeks <: AbstractWeeks
     func::Function
     Nterms::Int
     sigma::Float64
@@ -18,13 +19,14 @@ type Weeks <: AbstractWeeks
 end
 
 function _get_coefficients(func, Nterms, sigma, b)
-    a0 = real(_wcoeff(func,Nterms,sigma,b))
-    a = a0[Nterms+1:2*Nterms]
+    a0 = real(_wcoeff(func, Nterms, sigma, b))
+    return a0[Nterms+1:2*Nterms]
 end
 
 _get_coefficients(w::Weeks) = _get_coefficients(w.func, w.Nterms, w.sigma, w.b)
-
 _set_coefficients(w::Weeks) = (w.coefficients = _get_coefficients(w))
+
+const weeks_default_num_terms = 64
 
 """
    w::Weeks = Weeks(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0)
@@ -45,22 +47,24 @@ julia> ft(pi/2)
 0.0
 ```
 """
-Weeks(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0) =  Weeks(func,Nterms,sigma,b,_get_coefficients(func,Nterms,sigma,b))
+Weeks(func::Function, Nterms::Integer=weeks_default_num_terms,
+      sigma=1.0, b=1.0) =  Weeks(func, Nterms, sigma, b, _get_coefficients(func, Nterms, sigma, b))
 
 function eval_ilt(w::Weeks, t)
-    L = _laguerre(w.coefficients,2*w.b*t)
-    L * exp((w.sigma-w.b)*t)
+    L = _laguerre(w.coefficients, 2 * w.b * t)
+    return  L * exp((w.sigma - w.b) * t)
 end
 
 function eval_ilt(w::Weeks, t::AbstractArray)
-    L = _laguerre(w.coefficients,2*w.b*t)
-    [ L1 * exp((w.sigma-w.b)*t1) for (t1,L1) in zip(t,L)]
+    L = _laguerre(w.coefficients, 2 * w.b * t)
+    return [L1 * exp((w.sigma - w.b) * t1) for (t1, L1) in zip(t, L)]
 end
 
+## FIXME: remove magic numbers below
 function optimize(w::Weeks, t)
     (w.sigma, w.b) = _optimize_sigma_and_b(w.func, t, w.Nterms, 0.0, 30, 30)
     w.coefficients = _get_coefficients(w)
-    w
+    return w
 end
 
 """
@@ -80,7 +84,7 @@ optimization over two parameterss.
 """
 function optimize(w::AbstractWeeks, t, N)
     w.Nterms = N
-    optimize(w,t)
+    return optimize(w,t)
 end
 
 """
@@ -94,7 +98,7 @@ Use `Weeks` or `WeeksErr` to create `w`.
 """
 function opteval(w::AbstractWeeks, t, N)
     optimize(w,t, N)
-    w(t)
+    return w(t)
 end
 
 opteval(w::AbstractWeeks, t) = opteval(w,t,w.Nterms)
@@ -109,7 +113,7 @@ or both `Nterms` and `b` are omitted, then their current values are retained.
 function setparameters(w::AbstractWeeks, sigma, b, Nterms)
     (w.sigma, w.b, w.Nterms) = (sigma,b,Nterms)
     _set_coefficients(w)
-    w
+   return w
 end
 
 setparameters(w,sigma,b) = setparameters(w,sigma,b,w.Nterms)
@@ -118,12 +122,12 @@ setparameters(w,sigma) = setparameters(w,sigma,w.b)
 function setNterms(w::AbstractWeeks, Nterms::Integer)
     w.Nterms = Nterms
     _set_coefficients(w)
-    w
+    return w
 end
 
 #### WeeksErr
 
-type WeeksErr <: AbstractWeeks
+mutable struct WeeksErr <: AbstractWeeks
     func::Function
     Nterms::Int
     sigma::Float64
@@ -137,9 +141,9 @@ function _get_coefficients_and_params(func, Nterms, sigma, b)
     M = 2 * Nterms
     a0 = real(_wcoeff(func,M,sigma,b))
     a1 = a0[2*Nterms+1:3*Nterms]
-@compat   sa1 = sum(abs.(a1))
-@compat   sa2 = sum(abs.(@view a0[3*Nterms+1:4*Nterms]))
-    (a1,sa1,sa2)
+    sa1 = sum(abs.(a1))
+    sa2 = sum(abs.(@view a0[3*Nterms+1:4*Nterms]))
+    return (a1,sa1,sa2)
 end
 
 _get_coefficients_and_params(w::WeeksErr) = _get_coefficients_and_params(w.func, w.Nterms, w.sigma, w.b)
@@ -151,8 +155,7 @@ _set_coefficients(w::WeeksErr) = (w.coefficients, w.sa1, w.sa2) = _get_coefficie
 function optimize(w::WeeksErr, t)
     (w.sigma, w.b) = _optimize_sigma_and_b(w.func, t, w.Nterms, 0.0, 30, 30)
     _set_coefficients(w)
-#    (w.coefficients, w.sa1, w.sa2) = _get_coefficients_and_params(w)
-    w
+    return w
 end
 
 """
@@ -183,23 +186,23 @@ julia> ft(pi/2)[1] - cospi(1/2)  # cospi is more accurate
 0.0
 ```
 """
-function WeeksErr(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0)
+function WeeksErr(func::Function, Nterms::Integer=weeks_default_num_terms, sigma=1.0, b=1.0)
     params = _get_coefficients_and_params(func, Nterms, sigma, b)
-    WeeksErr(func,Nterms,sigma,b,params...)
+    return WeeksErr(func,Nterms,sigma,b,params...)
 end
 
 function eval_ilt(w::WeeksErr, t)
     L = _laguerre(w.coefficients,2*w.b*t)
     f = L * exp((w.sigma-w.b)*t)
     est = exp(w.sigma*t)*(w.sa2+eps()*w.sa1)
-    (f,est)
+    return (f,est)
 end
 
 function eval_ilt(w::WeeksErr, t::AbstractArray)
     L = _laguerre(w.coefficients,2*w.b*t)
-@compat    f = L .* exp.((w.sigma-w.b)*t)
-@compat    est = exp.(w.sigma*t)*(w.sa2+eps()*w.sa1)
-    (f,est)
+    f = L .* exp.((w.sigma-w.b)*t)
+    est = exp.(w.sigma*t)*(w.sa2+eps()*w.sa1)
+    return (f,est)
 end
 
 for w in (:Weeks, :WeeksErr)
@@ -208,23 +211,23 @@ end
 
 ##### internal functions
 
-function _wcoeff(F,N,sig,b)
-    n = -N:1:N-1
-    h = pi/N
-    th = h*(n+1//2)
-@compat    y = b*cot.(th/2)
-    imunit = Complex(zero(eltype(y)),one(eltype(y)))
-    s = sig +  imunit * y
+function _wcoeff(F, N, sig, b)
+    n = -N:N-1  # FIXME: remove 1 and test
+    h = pi / N # FIXME: what data type ?
+    th = h .* (n .+ 1//2)
+    y = b .* cot.(th / 2)
+    imaginary_unit = Complex(zero(eltype(y)), one(eltype(y)))
+    s = sig .+ imaginary_unit * y
     FF0 = map(F, s)
-    FF = [ FF1 * (b + imunit * y1) for (FF1,y1) in zip(FF0,y)]
-    a = fftshift(fft(fftshift(FF)))/(2*N)
-@compat   exp.(Complex(zero(h),-one(h)) * n*h/2) .* a
+    FF = [FF1 * (b + imaginary_unit * y1) for (FF1,y1) in zip(FF0,y)]
+    a = (FF |> AbstractFFTs.fftshift |> FFTW.fft |> AbstractFFTs.fftshift) / (2 * N)
+    return exp.(Complex(zero(h),-one(h)) * n*h/2) .* a
 end
 
 function _laguerre(a::AbstractVector,x::AbstractArray)
     N = length(a) - 1
-    unp1 = zeros(x)
-    un = a[N+1]*ones(x)
+    unp1 = zero(x)
+    un = a[N+1] * one(x)
     local unm1
     for n in N:-1:1
 #        unm1 =  (1//n)*(2*n-1-x) .* un - n/(n+1)*unp1 + a[n]
@@ -232,42 +235,42 @@ function _laguerre(a::AbstractVector,x::AbstractArray)
         unp1 = un
         un = unm1
     end
-    unm1
+    return unm1
 end
 
 function _laguerre(a::AbstractVector,x)
-    N = length(a) - 1
+    n = length(a) - 1
     unp1 = zero(x)
-    un = a[N+1]*one(x)
+    un = a[n+1]*one(x)
     local unm1
-    for n in N:-1:1
+    for n in n:-1:1
         unm1 = (1//n)*(2*n-1-x) * un - n/(n+1)*unp1 + a[n]
         unp1 = un
         un = unm1
     end
-    unm1
+    return unm1
 end
 
 function _optimize_sigma_and_b(F, t, N, sig0, sigmax, bmax)
-    sigma_opt = Optim.minimizer(Optim.optimize( sig -> _werr2e(sig, F,t,N, sig0, sigmax, bmax), sig0, sigmax))
-    b_opt = Optim.minimizer(Optim.optimize( b -> _werr2t(b, F, N, sigma_opt), 0, bmax))
-    (sigma_opt, b_opt)
+    sigma_opt = Optim.minimizer(Optim.optimize(sig -> _werr2e(sig, F,t,N, sig0, sigmax, bmax), sig0, sigmax))
+    b_opt = Optim.minimizer(Optim.optimize(b -> _werr2t(b, F, N, sigma_opt), 0, bmax))
+    return (sigma_opt, b_opt)
 end
 
-function _werr2e(sig,F,t,N,sig0,sigmax,bmax)
-    b = Optim.minimizer(Optim.optimize( (b) -> _werr2t(b, F,N, sig) , 0.0, bmax))
+function _werr2e(sig, F, t, N, sig0, sigmax, bmax)
+    b = Optim.minimizer(Optim.optimize((b) -> _werr2t(b, F,N, sig) , 0.0, bmax))
     M = 2*N
-    a = _wcoeff(F,M,sig,b)
+    a = _wcoeff(F, M, sig, b)
     a1 = @view a[2*N+1:3*N]
-@compat   sa1 = sum(abs.(a1))
+    sa1 = sum(abs.(a1))
     a2 = @view a[3*N+1:4*N]
-@compat   sa2 = sum(abs.(a2))
-    sig*t + log(sa2+eps()*sa1)
+    sa2 = sum(abs.(a2))
+    return sig*t + log(sa2+eps()*sa1)
 end
 
 function _werr2t(b, F, N, sig)
     M = 2*N
     a = _wcoeff(F,M,sig,b)
-@compat  sa2 = sum(abs.( @view a[3*N+1:4*N]))
-    log(sa2)
+    sa2 = sum(abs.(@view a[3*N+1:4*N]))
+    return log(sa2)
 end

@@ -1,7 +1,6 @@
 using InverseLaplace
 import InverseLaplace: talbot, gwr
-
-using Base.Test
+using Test
 
 include("weeks_test.jl")
 include("interface_test.jl")
