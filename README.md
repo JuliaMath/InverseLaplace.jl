@@ -7,8 +7,6 @@ Linux, OSX: [![Build Status](https://travis-ci.org/jlapeyre/InverseLaplace.jl.sv
 [![Coverage Status](https://coveralls.io/repos/github/jlapeyre/InverseLaplace.jl/badge.svg?branch=master)](https://coveralls.io/github/jlapeyre/InverseLaplace.jl?branch=master)
 [![codecov](https://codecov.io/gh/jlapeyre/InverseLaplace.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/jlapeyre/InverseLaplace.jl)
 
-
-
 This implements some numerical methods for computing inverse Laplace transforms in Julia.
 
 InverseLaplace v0.1.0 is the last version that supports Julia v0.6
