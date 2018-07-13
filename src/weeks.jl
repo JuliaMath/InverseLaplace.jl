@@ -10,30 +10,32 @@ end
 
 ### Weeks
 
-mutable struct Weeks <: AbstractWeeks
+mutable struct Weeks{T} <: AbstractWeeks
     func::Function
     Nterms::Int
     sigma::Float64
     b::Float64
-    coefficients::Array{Float64,1}
+    coefficients::Array{T,1}
 end
 
-function _get_coefficients(func, Nterms, sigma, b)
-    a0 = real(_wcoeff(func, Nterms, sigma, b))
+function _get_coefficients(func, Nterms, sigma, b, ::Type{T}) where T <:Number
+    a0 = _wcoeff(func, Nterms, sigma, b, T)
     return a0[Nterms+1:2*Nterms]
 end
 
-_get_coefficients(w::Weeks) = _get_coefficients(w.func, w.Nterms, w.sigma, w.b)
+_get_coefficients(w::Weeks{T}) where T <: Number =  _get_coefficients(w.func, w.Nterms, w.sigma, w.b, T)
 _set_coefficients(w::Weeks) = (w.coefficients = _get_coefficients(w))
 
 const weeks_default_num_terms = 64
 
 """
-   w::Weeks = Weeks(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0)
+   w::Weeks = Weeks(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0; datatype=Float64)
 
-return `w`, which estimates the inverse Laplace transform of `func` with
+Return `w`, which estimates the inverse Laplace transform of `func` with
 the Weeks algorithm. `w(t)` evaluates the transform at `t`. The accuracy depends on the choice
-of `sigma` and `b`, with the optimal choices depending on `t`.
+of `sigma` and `b`, with the optimal choices depending on `t`. `datatype` should agree with
+the `DataType` returned by `func`. For convenience, `datatype=Complex` is equivalent to
+`datatype=Complex{Float64}`
 
 The call to `Weeks` that creates `w` is expensive relative to evaluation via `w(t)`.
 
@@ -47,8 +49,11 @@ julia> ft(pi/2)
 0.0
 ```
 """
-Weeks(func::Function, Nterms::Integer=weeks_default_num_terms,
-      sigma=1.0, b=1.0) =  Weeks(func, Nterms, sigma, b, _get_coefficients(func, Nterms, sigma, b))
+function Weeks(func::Function, Nterms::Integer=weeks_default_num_terms,
+               sigma=1.0, b=1.0; datatype=Float64)
+    outdatatype = datatype == Complex ? Complex{Float64} : datatype  # allow `Complex` as abbrev for Complex{Float64}
+    return Weeks{outdatatype}(func, Nterms, sigma, b, _get_coefficients(func, Nterms, sigma, b, outdatatype))
+end
 
 function eval_ilt(w::Weeks, t)
     L = _laguerre(w.coefficients, 2 * w.b * t)
@@ -127,31 +132,30 @@ end
 
 #### WeeksErr
 
-mutable struct WeeksErr <: AbstractWeeks
+mutable struct WeeksErr{T} <: AbstractWeeks
     func::Function
     Nterms::Int
     sigma::Float64
     b::Float64
-    coefficients::Array{Float64,1}
+    coefficients::Array{T,1}
     sa1::Float64
     sa2::Float64
 end
 
-function _get_coefficients_and_params(func, Nterms, sigma, b)
-    M = 2 * Nterms
-    a0 = real(_wcoeff(func,M,sigma,b))
+function _get_coefficients_and_params(func, Nterms, sigma, b, ::Type{T}) where T
+    M = 2 * Nterms  # why 2 * Nterms ?
+    a0 = _wcoeff(func, M, sigma, b, T)
     a1 = a0[2*Nterms+1:3*Nterms]
     sa1 = sum(abs.(a1))
     sa2 = sum(abs.(@view a0[3*Nterms+1:4*Nterms]))
     return (a1,sa1,sa2)
 end
 
-_get_coefficients_and_params(w::WeeksErr) = _get_coefficients_and_params(w.func, w.Nterms, w.sigma, w.b)
-
-_get_coefficients(w::WeeksErr) = _get_coefficients_and_params(w.func, w.Nterms, w.sigma, w.b)
-
+_get_coefficients_and_params(w::WeeksErr{T}) where T = _get_coefficients_and_params(w.func, w.Nterms, w.sigma, w.b, T)
+_get_coefficients(w::WeeksErr{T}) where T = _get_coefficients_and_params(w.func, w.Nterms, w.sigma, w.b, T)
 _set_coefficients(w::WeeksErr) = (w.coefficients, w.sa1, w.sa2) = _get_coefficients_and_params(w)
 
+# FIXME: magic numbers here
 function optimize(w::WeeksErr, t)
     (w.sigma, w.b) = _optimize_sigma_and_b(w.func, t, w.Nterms, 0.0, 30, 30)
     _set_coefficients(w)
@@ -159,11 +163,12 @@ function optimize(w::WeeksErr, t)
 end
 
 """
-   w::WeeksErr = WeeksErr(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0)
+   w::WeeksErr = WeeksErr(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0; datatype=Float64)
 
-return `w`, which estimates the inverse Laplace transform of `func` via the Weeks algorithm.
+Return `w`, which estimates the inverse Laplace transform of `func` via the Weeks algorithm.
 `w(t)` returns a tuple containing the inverse transform at `t` and an error estimate. The accuracy of the
-inversion depends on the choice of `sigma` and `b`.
+inversion depends on the choice of `sigma` and `b`. See the documentation for `Weeks` for a
+description of the parameter `datatype`.
 
 # Example
 
@@ -186,9 +191,10 @@ julia> ft(pi/2)[1] - cospi(1/2)  # cospi is more accurate
 0.0
 ```
 """
-function WeeksErr(func::Function, Nterms::Integer=weeks_default_num_terms, sigma=1.0, b=1.0)
-    params = _get_coefficients_and_params(func, Nterms, sigma, b)
-    return WeeksErr(func,Nterms,sigma,b,params...)
+function WeeksErr(func::Function, Nterms::Integer=weeks_default_num_terms, sigma=1.0, b=1.0; datatype=Float64)
+    outdatatype = datatype == Complex ? Complex{Float64} : datatype  # allow `Complex` as abbrev for Complex{Float64}
+    params = _get_coefficients_and_params(func, Nterms, sigma, b, outdatatype)
+    return WeeksErr{outdatatype}(func, Nterms, sigma, b, params...)
 end
 
 function eval_ilt(w::WeeksErr, t)
@@ -210,6 +216,9 @@ for w in (:Weeks, :WeeksErr)
 end
 
 ##### internal functions
+
+_wcoeff(F, N, sig, b, ::Type{T}) where T <: Real = real(_wcoeff(F, N, sig, b))
+_wcoeff(F, N, sig, b, ::Type{T}) where T <: Complex = _wcoeff(F, N, sig, b)
 
 function _wcoeff(F, N, sig, b)
     n = -N:N-1  # FIXME: remove 1 and test
