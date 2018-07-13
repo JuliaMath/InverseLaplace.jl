@@ -15,11 +15,11 @@ mutable struct Weeks <: AbstractWeeks
     Nterms::Int
     sigma::Float64
     b::Float64
-    coefficients::Array{Float64,1}
+    coefficients::Array{Complex128,1}
 end
 
 function _get_coefficients(func, Nterms, sigma, b)
-    a0 = real(_wcoeff(func, Nterms, sigma, b))
+    a0 = complex(_wcoeff(func, Nterms, sigma, b))
     return a0[Nterms+1:2*Nterms]
 end
 
@@ -132,14 +132,14 @@ mutable struct WeeksErr <: AbstractWeeks
     Nterms::Int
     sigma::Float64
     b::Float64
-    coefficients::Array{Float64,1}
+    coefficients::Array{Complex128,1}
     sa1::Float64
     sa2::Float64
 end
 
 function _get_coefficients_and_params(func, Nterms, sigma, b)
     M = 2 * Nterms
-    a0 = real(_wcoeff(func,M,sigma,b))
+    a0 = complex(_wcoeff(func,M,sigma,b))
     a1 = a0[2*Nterms+1:3*Nterms]
     sa1 = sum(abs.(a1))
     sa2 = sum(abs.(@view a0[3*Nterms+1:4*Nterms]))
