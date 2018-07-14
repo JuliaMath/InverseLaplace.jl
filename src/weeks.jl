@@ -29,7 +29,7 @@ _set_coefficients(w::Weeks) = (w.coefficients = _get_coefficients(w))
 const weeks_default_num_terms = 64
 
 """
-   w::Weeks = Weeks(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0; datatype=Float64)
+   w::Weeks{datatype} = Weeks(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0; datatype=Float64)
 
 Return `w`, which estimates the inverse Laplace transform of `func` with
 the Weeks algorithm. `w(t)` evaluates the transform at `t`. The accuracy depends on the choice
@@ -163,7 +163,7 @@ function optimize(w::WeeksErr, t)
 end
 
 """
-   w::WeeksErr = WeeksErr(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0; datatype=Float64)
+   w::WeeksErr{datatype} = WeeksErr(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0; datatype=Float64)
 
 Return `w`, which estimates the inverse Laplace transform of `func` via the Weeks algorithm.
 `w(t)` returns a tuple containing the inverse transform at `t` and an error estimate. The accuracy of the
