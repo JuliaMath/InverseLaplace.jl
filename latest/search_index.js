@@ -61,7 +61,7 @@ var documenterSearchIndex = {"docs": [
     "page": "InverseLaplace",
     "title": "InverseLaplace.Weeks",
     "category": "type",
-    "text": "w::Weeks = Weeks(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0; datatype=Float64)\n\nReturn w, which estimates the inverse Laplace transform of func with the Weeks algorithm. w(t) evaluates the transform at t. The accuracy depends on the choice of sigma and b, with the optimal choices depending on t. datatype should agree with the DataType returned by func. For convenience, datatype=Complex is equivalent to datatype=Complex{Float64}\n\nThe call to Weeks that creates w is expensive relative to evaluation via w(t).\n\nExample\n\nCompute the inverse transform of the transform of cos at argument pi/2.\n\njulia> ft = Weeks(s -> s/(s^2+1), 80);\n\njulia> ft(pi/2)\n0.0\n\n\n\n\n\n"
+    "text": "w::Weeks{datatype} = Weeks(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0; datatype=Float64)\n\nReturn w, which estimates the inverse Laplace transform of func with the Weeks algorithm. w(t) evaluates the transform at t. The accuracy depends on the choice of sigma and b, with the optimal choices depending on t. datatype should agree with the DataType returned by func. For convenience, datatype=Complex is equivalent to datatype=Complex{Float64}\n\nThe call to Weeks that creates w is expensive relative to evaluation via w(t).\n\nExample\n\nCompute the inverse transform of the transform of cos at argument pi/2.\n\njulia> ft = Weeks(s -> s/(s^2+1), 80);\n\njulia> ft(pi/2)\n0.0\n\n\n\n\n\n"
 },
 
 {
@@ -69,7 +69,7 @@ var documenterSearchIndex = {"docs": [
     "page": "InverseLaplace",
     "title": "InverseLaplace.WeeksErr",
     "category": "type",
-    "text": "w::WeeksErr = WeeksErr(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0; datatype=Float64)\n\nReturn w, which estimates the inverse Laplace transform of func via the Weeks algorithm. w(t) returns a tuple containing the inverse transform at t and an error estimate. The accuracy of the inversion depends on the choice of sigma and b. See the documentation for Weeks for a description of the parameter datatype.\n\nExample\n\nCompute the inverse transform of the transform of cos, and an error estimate, at argument pi/2 using 80 terms.\n\njulia> ft = WeeksErr(s -> s/(s^2+1), 80);\n\njulia> ft(pi/2)\n(0.0,3.0872097665938698e-15)\n\nThis estimate is more accurate than cos(pi/2).\n\njulia> ft(pi/2)[1] - cos(pi/2)\n-6.123233995736766e-17\n\njulia> ft(pi/2)[1] - 0.0         # exact value\n0.0\n\njulia> ft(pi/2)[1] - cospi(1/2)  # cospi is more accurate\n0.0\n\n\n\n\n\n"
+    "text": "w::WeeksErr{datatype} = WeeksErr(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0; datatype=Float64)\n\nReturn w, which estimates the inverse Laplace transform of func via the Weeks algorithm. w(t) returns a tuple containing the inverse transform at t and an error estimate. The accuracy of the inversion depends on the choice of sigma and b. See the documentation for Weeks for a description of the parameter datatype.\n\nExample\n\nCompute the inverse transform of the transform of cos, and an error estimate, at argument pi/2 using 80 terms.\n\njulia> ft = WeeksErr(s -> s/(s^2+1), 80);\n\njulia> ft(pi/2)\n(0.0,3.0872097665938698e-15)\n\nThis estimate is more accurate than cos(pi/2).\n\njulia> ft(pi/2)[1] - cos(pi/2)\n-6.123233995736766e-17\n\njulia> ft(pi/2)[1] - 0.0         # exact value\n0.0\n\njulia> ft(pi/2)[1] - cospi(1/2)  # cospi is more accurate\n0.0\n\n\n\n\n\n"
 },
 
 {
