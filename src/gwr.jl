@@ -33,7 +33,7 @@ julia> InverseLaplace.gwr( s -> 1/s^3, 3.0)
 function gwr(func, t, M)
     Dt = typeof(t)
     bM = convert(Dt, M)
-    tau = log(convert(Dt, 2))/t
+    tau = log(convert(Dt, 2)) / t
     broken = false
     Fi = Array{Dt}(undef, 2 * M)
 @inbounds  for i in 1: 2 * M
@@ -55,13 +55,13 @@ function gwr(func, t, M)
     Gp = zeros(Dt, M1 + 1)
     best = G0[M1]
     for k in 0:M1-2
-        for n in (M1-2-k):-1:0
+        for n in (M1 - 2 - k):-1:0
             expr = G0[n + 2] - G0[n + 1]
             if expr == 0
                 broken = true
                 break
             end
-            expr = Gm[n + 2] + (k + 1)/expr
+            expr = Gm[n + 2] + (k + 1) / expr
             Gp[n + 1] = expr
             if isodd(k) && n == M1 - 2 - k
                 best = expr

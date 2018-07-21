@@ -10,12 +10,12 @@
 Evaluate the inverse Laplace transform of `func` at the point `t`. Use `M` terms in the algorithm.
 For `typeof(t)` is `Float64`, the default for `M` is `32`. For `BigFloat` the default is `64`.
 
-If `BigFloat` precision is larger than default, try increasing `M`. `talbot is vectorized over `t`.
+If `BigFloat` precision is larger than default, try increasing `M`.
 
 # Example
 
 ```jldoctest
-julia> InverseLaplace.talbot( s -> 1/s^3, 3)
+julia> InverseLaplace.talbot(s -> 1 / s^3, 3)
 4.50000000000153
 ```
 
@@ -50,10 +50,10 @@ talbot(func, t::Rational, args...) = talbot(func, BigFloat(t), args...)
 """
     talbotarr(func, ta::AbstractArray, M)
 
-inverse Laplace transform vectorized over `ta`. Each evaluation
-of `func(s)` is used for all elements of `ta`. This may be faster
-than a vectorized application of `talbot`, but is in general, less accurate.
-`talbotarr` uses the "fixed" Talbot method.
+Compute the inverse Laplace transform for each element in `ta`. Each evaluation
+of `func(s)` is used for all elements of `ta`. This may be faster than a
+broadcast application of `talbot` (i.e. `talbot.(...`) , but is in general, less
+accurate.  `talbotarr` uses the "fixed" Talbot method.
 """
 function talbotarr(func, t::AbstractArray, M)
     tt = typeof(t[1])
@@ -75,10 +75,12 @@ function talbotarr(func, t::AbstractArray, M)
         end
     end
     for j in 1:length(terms)
-        terms[j] *= 2/(5 * tmax)
+        terms[j] *= 2 / (5 * tmax)
     end
     return terms
 end
 
 talbotarr(func, t::AbstractArray) = talbotarr(func, t, talbot_default_num_terms)
 talbotarr(func, t::Vector{BigFloat}) = talbotarr(func, t, talbot_BigFloat_default_num_terms)
+
+#  LocalWords:  talbotarr func talbot

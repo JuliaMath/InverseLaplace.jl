@@ -17,7 +17,7 @@ abstract type AbstractILt end
 """
    ft::Talbot = Talbot(func::Function, Nterms::Integer=32)
 
-return `ft`, which estimates the inverse Laplace transform of `func` with
+Return `ft`, which estimates the inverse Laplace transform of `func` with
 the fixed Talbot algorithm. `ft(t)` evaluates the transform at `t`.  You may
 want to tune `Nterms` together with `setprecision(BigFloat, x)`.
 
@@ -25,15 +25,15 @@ want to tune `Nterms` together with `setprecision(BigFloat, x)`.
 
 Compute the inverse transform of the transform of `cos` at argument `pi/2`.
 ```julia-repl
-julia> ft = Talbot(s -> s/(s^2 + 1), 80);
+julia> ft = Talbot(s -> s / (s^2 + 1), 80);
 
-julia> ft(pi/2)
+julia> ft(pi / 2)
 -3.5366510684573195e-5
 ```
 
 Note that given `Float64` input, the precision of the returned value may not be satisfactory.
 ```julia-repl
-julia> Float64(ft(big(pi)/2))
+julia> Float64(ft(big(pi) / 2))
 2.114425886215604e-49
 ```
 
@@ -53,16 +53,16 @@ Talbot(Laplace_space_func::Base.Callable) = Talbot(Laplace_space_func, talbot_de
 """
    ft::GWR = GWR(func::Function, Nterms::Integer=16)
 
-return `ft`, which estimates the inverse Laplace transform of `func` with
+Return `ft`, which estimates the inverse Laplace transform of `func` with
 the GWR algorithm. `ft(t)` evaluates the transform at `t`.
 
 # Example
 
-Compute the inverse transform of the transform of `cos` at argument `pi/2`.
+Compute the inverse transform of the transform of `cos` at argument `pi / 2`.
 ```
-julia> ft = GWR(s -> s/(s^2 + 1), 16);
+julia> ft = GWR(s -> s / (s^2 + 1), 16);
 
-julia> ft(pi/2)
+julia> ft(pi / 2)
 -0.001
 ```
 """
@@ -85,7 +85,7 @@ function Base.show(io::IO, ailt::AbstractILt)
     print(io, string(typeof(ailt)), "(Nterms=", ailt.Nterms, ')')
 end
 
-# TODO get rid of this in favor of above.
+# TODO: get rid of this in favor of above.
 # Rely on broadcasting, as well.
 struct ILt{T<:Base.Callable, V<:Base.Callable} <: AbstractILt
     Laplace_space_func::T
@@ -98,7 +98,7 @@ end
 
  * deprecated. Use, ILT, Talbot, GWR, or Weeks instead *
 
-return an object that estimates the inverse Laplace transform of
+Return an object that estimates the inverse Laplace transform of
 the function `func` using the algorithm implemented by function `iltfunc`.
 `itrans(t)` estimates the inverse transform for argument `t`.  The
 accuracy of the estimates depends strongly on the choice of `iltfunc`, `t`, `Nterms`,

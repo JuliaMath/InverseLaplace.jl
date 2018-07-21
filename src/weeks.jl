@@ -75,7 +75,7 @@ end
 """
     optimize(w::AbstractWeeks, t, Nterms)
 
-optimize the parameters of the inverse Laplace transform `w` at the
+Optimize the parameters of the inverse Laplace transform `w` at the
 argument `t`. If `Nterms` is ommitted, the current value of `w.Nterms`
 is retained.
 
@@ -87,13 +87,13 @@ the inverse transform that are extremely inaccurate.
 `optimize` is expensive in CPU time and allocation, it performs nested single-parameter
 optimization over two parameterss.
 """
-function optimize(w::AbstractWeeks, t, N)
-    w.Nterms = N
-    return optimize(w,t)
+function optimize(w::AbstractWeeks, t, Nterms)
+    w.Nterms = Nterms
+    return optimize(w, t)
 end
 
 """
-    opteval{T<:AbstractWeeks}(w::T, t, Nterms)
+    opteval(w::AbstractWeeks, t, Nterms)
 
 estimate an inverse Laplace transform at argument `t` using `w` after
 optimizing the parameters for `t`. If `Nterms` is omitted, then the
@@ -101,22 +101,22 @@ current value of `w.Nterms` is used.
 
 Use `Weeks` or `WeeksErr` to create `w`.
 """
-function opteval(w::AbstractWeeks, t, N)
-    optimize(w,t, N)
+function opteval(w::AbstractWeeks, t, Nterms)
+    optimize(w, t, Nterms)
     return w(t)
 end
 
-opteval(w::AbstractWeeks, t) = opteval(w,t,w.Nterms)
+opteval(w::AbstractWeeks, t) = opteval(w, t, w.Nterms)
 
 """
-    setparameters{T<:AbstractWeeks}(w::T, sigma, b, Nterms)
+    setparameters(w::AbstractWeeks, sigma, b, Nterms)
 
 Set the parameters for the inverse Laplace transform object `w` and recompute
 the internal data. Subsequent calls `w(t)` will use these parameters. If `Nterms`
 or both `Nterms` and `b` are omitted, then their current values are retained.
 """
 function setparameters(w::AbstractWeeks, sigma, b, Nterms)
-    (w.sigma, w.b, w.Nterms) = (sigma,b,Nterms)
+    (w.sigma, w.b, w.Nterms) = (sigma, b, Nterms)
     _set_coefficients(w)
    return w
 end
