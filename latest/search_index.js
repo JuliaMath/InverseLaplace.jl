@@ -13,7 +13,7 @@ var documenterSearchIndex = {"docs": [
     "page": "InverseLaplace",
     "title": "InverseLaplace",
     "category": "section",
-    "text": "Numerical inverse Laplace transform.The source repository is https://github.com/jlapeyre/InverseLaplace.jl.This package provides three numerical algorithms for numerically inverting Laplace transforms. InverseLaplace v0.1.0 is the last version that supports Julia v0.6. Optimization of the Weeks method is temporarily disabled for Julia v0.7."
+    "text": "Numerical inverse Laplace transformThe source repository is https://github.com/jlapeyre/InverseLaplace.jl.This package provides three algorithms for numerically inverting Laplace transforms. InverseLaplace v0.1.0 is the last version that supports Julia v0.6. Optimization of the Weeks method is temporarily disabled for Julia v0.7."
 },
 
 {
@@ -33,6 +33,14 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
+    "location": "index.html#InverseLaplace.Talbot",
+    "page": "InverseLaplace",
+    "title": "InverseLaplace.Talbot",
+    "category": "type",
+    "text": "ft::Talbot = Talbot(func::Function, Nterms::Integer=32)\n\nReturn ft, which estimates the inverse Laplace transform of func with the fixed Talbot algorithm. ft(t) evaluates the transform at t.  You may want to tune Nterms together with setprecision(BigFloat, x).\n\nExample\n\nCompute the inverse transform of the transform of cos at argument pi/2.\n\njulia> ft = Talbot(s -> s / (s^2 + 1), 80);\n\njulia> ft(pi / 2)\n-3.5366510684573195e-5\n\nNote that given Float64 input, the precision of the returned value may not be satisfactory.\n\njulia> Float64(ft(big(pi) / 2))\n2.114425886215604e-49\n\nnote: Note\nThis function uses the fixed Talbot method. It evaluates the Laplace transform function for complex arguments. The GWR method is, in general, less accurate and less stable, but does not evaluate the Laplace transform function for complex arguments.\n\n\n\n\n\n"
+},
+
+{
     "location": "index.html#InverseLaplace.ILT",
     "page": "InverseLaplace",
     "title": "InverseLaplace.ILT",
@@ -41,19 +49,11 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#InverseLaplace.Talbot",
-    "page": "InverseLaplace",
-    "title": "InverseLaplace.Talbot",
-    "category": "type",
-    "text": "ft::Talbot = Talbot(func::Function, Nterms::Integer=32)\n\nreturn ft, which estimates the inverse Laplace transform of func with the fixed Talbot algorithm. ft(t) evaluates the transform at t.  You may want to tune Nterms together with setprecision(BigFloat, x).\n\nExample\n\nCompute the inverse transform of the transform of cos at argument pi/2.\n\njulia> ft = Talbot(s -> s/(s^2 + 1), 80);\n\njulia> ft(pi/2)\n-3.5366510684573195e-5\n\nNote that given Float64 input, the precision of the returned value may not be satisfactory.\n\njulia> Float64(ft(big(pi)/2))\n2.114425886215604e-49\n\nnote: Note\nThis function uses the fixed Talbot method. It evaluates the Laplace transform function for complex arguments. The GWR method is, in general, less accurate and less stable, but does not evaluate the Laplace transform function for complex arguments.\n\n\n\n\n\n"
-},
-
-{
     "location": "index.html#InverseLaplace.GWR",
     "page": "InverseLaplace",
     "title": "InverseLaplace.GWR",
     "category": "type",
-    "text": "ft::GWR = GWR(func::Function, Nterms::Integer=16)\n\nreturn ft, which estimates the inverse Laplace transform of func with the GWR algorithm. ft(t) evaluates the transform at t.\n\nExample\n\nCompute the inverse transform of the transform of cos at argument pi/2.\n\njulia> ft = GWR(s -> s/(s^2 + 1), 16);\n\njulia> ft(pi/2)\n-0.001\n\n\n\n\n\n"
+    "text": "ft::GWR = GWR(func::Function, Nterms::Integer=16)\n\nReturn ft, which estimates the inverse Laplace transform of func with the GWR algorithm. ft(t) evaluates the transform at t.\n\nExample\n\nCompute the inverse transform of the transform of cos at argument pi / 2.\n\njulia> ft = GWR(s -> s / (s^2 + 1), 16);\n\njulia> ft(pi / 2)\n-0.001\n\n\n\n\n\n"
 },
 
 {
@@ -73,11 +73,43 @@ var documenterSearchIndex = {"docs": [
 },
 
 {
-    "location": "index.html#Inverse-Laplace-transform-methods-1",
+    "location": "index.html#Inverse-Laplace-transform-algorithms-1",
     "page": "InverseLaplace",
-    "title": "Inverse Laplace transform methods",
+    "title": "Inverse Laplace transform algorithms",
     "category": "section",
-    "text": "Constructing these Julia types, corresponding to different numerical methods, returns a callable object that evaluates the inverse transform at specified points.ILT\nTalbot\nGWR\nWeeks\nWeeksErr"
+    "text": "Constructing these Julia types, corresponding to different numerical algorithms, returns a callable object that evaluates the inverse Laplace transform at specified points.Talbot\nILT\nGWR\nWeeks\nWeeksErr"
+},
+
+{
+    "location": "index.html#InverseLaplace.setNterms",
+    "page": "InverseLaplace",
+    "title": "InverseLaplace.setNterms",
+    "category": "function",
+    "text": "setNterms(ailt::AbstractILt, Nterms::Integer)\n\nset the number of terms used in the inverse Laplace tranform ailt. If ailt stores internal data, it will be recomputed, so that subsequent calls ailt(t) reflect the new value of Nterms.\n\n\n\n\n\n"
+},
+
+{
+    "location": "index.html#InverseLaplace.optimize",
+    "page": "InverseLaplace",
+    "title": "InverseLaplace.optimize",
+    "category": "function",
+    "text": "optimize(w::AbstractWeeks, t, Nterms)\n\nOptimize the parameters of the inverse Laplace transform w at the argument t. If Nterms is ommitted, the current value of w.Nterms is retained.\n\nThe accuracy of the Weeks algorithm depends strongly on t. For some ranges of t, the accuracy is relatively insensitive to the parameters. For other values of t, even using optimized parameters results in estimates of the inverse transform that are extremely inaccurate.\n\noptimize is expensive in CPU time and allocation, it performs nested single-parameter optimization over two parameterss.\n\n\n\n\n\n"
+},
+
+{
+    "location": "index.html#InverseLaplace.opteval",
+    "page": "InverseLaplace",
+    "title": "InverseLaplace.opteval",
+    "category": "function",
+    "text": "opteval(w::AbstractWeeks, t, Nterms)\n\nestimate an inverse Laplace transform at argument t using w after optimizing the parameters for t. If Nterms is omitted, then the current value of w.Nterms is used.\n\nUse Weeks or WeeksErr to create w.\n\n\n\n\n\n"
+},
+
+{
+    "location": "index.html#InverseLaplace.setparameters",
+    "page": "InverseLaplace",
+    "title": "InverseLaplace.setparameters",
+    "category": "function",
+    "text": "setparameters(w::AbstractWeeks, sigma, b, Nterms)\n\nSet the parameters for the inverse Laplace transform object w and recompute the internal data. Subsequent calls w(t) will use these parameters. If Nterms or both Nterms and b are omitted, then their current values are retained.\n\n\n\n\n\n"
 },
 
 {
@@ -85,7 +117,7 @@ var documenterSearchIndex = {"docs": [
     "page": "InverseLaplace",
     "title": "Setting parameters",
     "category": "section",
-    "text": "The inverse Laplace tranform routines should not be treated as black boxes. They are prone to instability and can give inaccurate or wrong results. There are some parameters you can set to try to minimize these problems.setNterms\noptimize\nopteval\nsetparameters"
+    "text": "The inverse Laplace tranform routines should not be treated as black boxes. They are prone to instability and can give inaccurate or wrong results. There are some parameters you can set to try to minimize these problems.InverseLaplace.setNterms\nInverseLaplace.optimize\nInverseLaplace.opteval\nInverseLaplace.setparameters"
 },
 
 {
@@ -141,7 +173,7 @@ var documenterSearchIndex = {"docs": [
     "page": "InverseLaplace",
     "title": "InverseLaplace.talbot",
     "category": "function",
-    "text": "talbot(func::Function, t::AbstractFloat, M::Integer=talbot_default_num_terms)\n\nEvaluate the inverse Laplace transform of func at the point t. Use M terms in the algorithm. For typeof(t) is Float64, the default for M is 32. For BigFloat the default is 64.\n\nIf BigFloat precision is larger than default, try increasing M. talbot is vectorized overt`.\n\nExample\n\njulia> InverseLaplace.talbot( s -> 1/s^3, 3)\n4.50000000000153\n\nnote: Note\nThis function uses the fixed Talbot method. It evaluates func for complex arguments.\n\n\n\n\n\n"
+    "text": "talbot(func::Function, t::AbstractFloat, M::Integer=talbot_default_num_terms)\n\nEvaluate the inverse Laplace transform of func at the point t. Use M terms in the algorithm. For typeof(t) is Float64, the default for M is 32. For BigFloat the default is 64.\n\nIf BigFloat precision is larger than default, try increasing M.\n\nExample\n\njulia> InverseLaplace.talbot(s -> 1 / s^3, 3)\n4.50000000000153\n\nnote: Note\nThis function uses the fixed Talbot method. It evaluates func for complex arguments.\n\n\n\n\n\n"
 },
 
 {
@@ -157,7 +189,7 @@ var documenterSearchIndex = {"docs": [
     "page": "InverseLaplace",
     "title": "InverseLaplace.talbotarr",
     "category": "function",
-    "text": "talbotarr(func, ta::AbstractArray, M)\n\ninverse Laplace transform vectorized over ta. Each evaluation of func(s) is used for all elements of ta. This may be faster than a vectorized application of talbot, but is in general, less accurate. talbotarr uses the \"fixed\" Talbot method.\n\n\n\n\n\n"
+    "text": "talbotarr(func, ta::AbstractArray, M)\n\nCompute the inverse Laplace transform for each element in ta. Each evaluation of func(s) is used for all elements of ta. This may be faster than a broadcast application of talbot (i.e. talbot.(...) , but is in general, less accurate.  talbotarr uses the \"fixed\" Talbot method.\n\n\n\n\n\n"
 },
 
 {
