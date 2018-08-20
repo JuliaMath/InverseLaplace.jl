@@ -1,6 +1,7 @@
 # import Optim  # broken
 import AbstractFFTs
 import FFTW
+using LinearAlgebra: transpose!
 
 abstract type AbstractWeeks <: AbstractILt end
 
@@ -221,6 +222,7 @@ _wcoeff(F, N, sig, b, ::Type{T}) where T <: Real = real(_wcoeff(F, N, sig, b))
 _wcoeff(F, N, sig, b, ::Type{T}) where T <: Complex = _wcoeff(F, N, sig, b)
 
 function _wcoeff(F, N, sig, b)
+    FN = length(F(complex(1.01)))
     n = -N:N-1  # FIXME: remove 1 and test
     h = pi / N # FIXME: what data type ?
     th = h .* (n .+ 1//2)
@@ -229,8 +231,8 @@ function _wcoeff(F, N, sig, b)
     s = sig .+ imaginary_unit * y
     FF0 = map(F, s)
     FF = [FF1 * (b + imaginary_unit * y1) for (FF1,y1) in zip(FF0,y)]
-    FFTranspose = Array{Complex{Float64},2}(undef,(length(y),2))
-    transpose!(FFTranspose,reshape(vcat(FF...),(2,length(y))))
+    FFTranspose = Array{Complex{Float64},2}(undef,(length(y),FN))
+    transpose!(FFTranspose,reshape(vcat(FF...),(FN,length(y))))
     FFp = FFTW.plan_fft!(FFTranspose,1,flags=FFTW.MEASURE)
     a = colFFTwshift(FFp,FFTranspose) / (2 * N)
     return exp.(Complex(zero(h),-one(h)) * n*h/2)  .* a
