@@ -59,3 +59,21 @@ end
 let Fc = Weeks(Fcomplex, 1024, datatype=Complex),  trange = range(0.0, stop=30.0, length=1000)
     @test isapprox(Fc.(trange), fcomplex.(trange), atol=0.001)
 end
+
+
+### Complex Vector
+Nr = collect(1:64)
+function fcomplex(t)
+    α = complex(-0.3,6.0)
+    return Nr .*exp(α*t)
+end
+
+function Fcomplex(s::Complex{Float64})::Vector{Complex{Float64}}
+    # Laplace domain
+    α = complex(-0.3,6.0)
+    return Nr ./(s-α)
+end
+
+let Ft = Weeks(Fcomplex,512,10.0,1.0,datatype=Complex)
+    @test isapprox(Ft(0.1), fcomplex(0.1),atol=1.0E-8)
+end
