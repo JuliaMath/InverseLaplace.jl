@@ -56,6 +56,6 @@ function fcomplex(t)
     return exp(α * t)
 end
 
-let Fc = Weeks(Fcomplex, 1024, datatype=Complex),  trange = range(0.0, stop=30.0, length=1000)
-    @test isapprox(Fc.(trange), fcomplex.(trange), atol=0.001)
+let Fc = Weeks(Fcomplex, 256, 1.0, 10.0, datatype=Complex),  trange = range(0.0, stop=15.0, length=5)
+    @test isapprox(Fc.(trange), fcomplex.(trange), atol=0.0001)
 end

@@ -233,6 +233,38 @@ function _wcoeff(F, N, sig, b)
     return exp.(Complex(zero(h),-one(h)) * n*h/2) .* a
 end
 
+# Laguerre coefficients for each function element are stored along first dimension
+function colFFTwshift(plan::N, F::AbstractArray) where {N<:FFTW.cFFTWPlan}
+    return AbstractFFTs.fftshift(plan*AbstractFFTs.fftshift(F,1),1)
+end
+
+# Array version of _wcoeff, can output scalar version as well.
+function _arrcoeff(F,N,sig,b)
+    n = -N:N-1  # FIXME: remove 1 and test
+    h = pi / N # FIXME: what data type ?
+    th = h .* (n .+ 1//2)
+    y = b .* cot.(th / 2)
+    imaginary_unit = Complex(zero(eltype(y)), one(eltype(y)))
+    s = sig .+ imaginary_unit * y
+    FF0 = map(F, s)
+    Feval= FF0[1] # To get dimensions of Weeks.func
+    FF = [FF1 * (b + imaginary_unit * y1) for (FF1,y1) in zip(FF0,y)]
+    FFTranspose = Array{Complex{Float64},ndims(Feval)+1}(undef,(length(y),size(Feval)...))
+    # Collect coeffs along first dimension (columns)
+    permutedims!(FFTranspose,cat(FF...;dims=(ndims(Feval)+1)),(range(ndims(Feval)+1,stop=1,step=-1)))
+    # Plan FFT for coeffs
+    FFp = FFTW.plan_fft!(FFTranspose,1,flags=FFTW.MEASURE)
+    a = colFFTwshift(FFp,FFTranspose) ./ (2 * N)
+    #
+    if length(a)==size(a)[1]
+        return vec(exp.(Complex(zero(h),-one(h)) * n*h/2)  .* a)
+    else
+        return exp.(Complex(zero(h),-one(h)) * n*h/2)  .* a
+    end
+end
+
+
+
 function _laguerre(a::AbstractVector,x::AbstractArray)
     N = length(a) - 1
     unp1 = zero(x)

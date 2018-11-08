@@ -3,6 +3,7 @@ import InverseLaplace: talbot, gwr
 using Test
 
 include("weeks_test.jl")
+include("arrayweeks_test.jl")
 include("interface_test.jl")
 
 #### plain function interface
