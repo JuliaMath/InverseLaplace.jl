@@ -23,8 +23,17 @@ function _get_coefficients(func, Nterms, sigma, b, ::Type{T}) where T <:Number
     return a0[Nterms+1:2*Nterms]
 end
 
+function _get_array_coefficients(func, Nterms, sigma, b, ::Type{T}) where T <:Number
+    a0 = _arrcoeff(func,Nterms, sigma, b, T)
+    return selectdim(a0,1,Nterms+1:2*Nterms)
+end
+
+
 _get_coefficients(w::Weeks{T}) where T <: Number =  _get_coefficients(w.func, w.Nterms, w.sigma, w.b, T)
 _set_coefficients(w::Weeks) = (w.coefficients = _get_coefficients(w))
+
+_get_array_coefficients(w::Weeks{T}) where T <: Number = _get_coefficients(w.func, w.Nterms, w.sigma, w.b, T)
+_set_array_coefficients(w::Weeks) = (w.coefficients = _get_coefficients(w))
 
 const weeks_default_num_terms = 64
 
@@ -237,6 +246,9 @@ end
 function colFFTwshift(plan::N, F::AbstractArray) where {N<:FFTW.cFFTWPlan}
     return AbstractFFTs.fftshift(plan*AbstractFFTs.fftshift(F,1),1)
 end
+
+_arrcoeff(F, N, sig, b, ::Type{T}) where T <: Real = real(_arrcoeff(F, N, sig, b))
+_arrcoeff(F, N, sig, b, ::Type{T}) where T <: Complex = _arrcoeff(F, N, sig, b)
 
 # Array version of _wcoeff, can output scalar version as well.
 function _arrcoeff(F,N,sig,b)

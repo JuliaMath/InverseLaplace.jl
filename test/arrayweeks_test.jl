@@ -21,11 +21,24 @@ let arr = try InverseLaplace._arrcoeff(Fcomplex,4,1.0,1.0);
         @test arr == scal
 end
 
+# Test for ordering of array valued coefficients (along first dimension)
 let arr = try InverseLaplace._arrcoeff(arrFcomplex,4,1.0,1.0);
     InverseLaplace._arrcoeff(arrFcomplex,4,1.0,1.0)
     catch
         InverseLaplace._arrcoeff(arrFcomplex,4,1.0,1.0)
     end, scal = InverseLaplace._wcoeff(Fcomplex,4,1.0,1.0)
+        @test arr[:,1,1] == scal
+        @test arr[:,2,1] == 2 .* arr[:,1,1]
+        @test isapprox(arr[:,1,2] , 3 .* arr[:,1,1], atol=1E-15)
+        @test arr[:,2,2] == 4 .* arr[:,1,1]
+end
+
+# Test _get_coefficients for array functions
+let arr = try InverseLaplace._get_array_coefficients(arrFcomplex,4,1.0,1.0,Complex);
+    InverseLaplace._get_array_coefficients(arrFcomplex,4,1.0,1.0,Complex)
+    catch
+        InverseLaplace._get_array_coefficients(arrFcomplex,4,1.0,1.0,Complex)
+    end, scal = InverseLaplace._get_coefficients(Fcomplex,4,1.0,1.0,Complex)
         @test arr[:,1,1] == scal
         @test arr[:,2,1] == 2 .* arr[:,1,1]
         @test isapprox(arr[:,1,2] , 3 .* arr[:,1,1], atol=1E-15)
