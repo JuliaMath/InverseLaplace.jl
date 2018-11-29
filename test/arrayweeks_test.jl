@@ -33,7 +33,7 @@ let arr = try InverseLaplace._arrcoeff(arrFcomplex,4,1.0,1.0);
         @test arr[:,2,2] == 4 .* arr[:,1,1]
 end
 
-# Test _get_coefficients for array functions
+# Compare _get_coefficients and _laguerre for array functions and scalar functions
 let arr = try InverseLaplace._get_array_coefficients(arrFcomplex,4,1.0,1.0,Complex);
     InverseLaplace._get_array_coefficients(arrFcomplex,4,1.0,1.0,Complex)
     catch
@@ -43,4 +43,14 @@ let arr = try InverseLaplace._get_array_coefficients(arrFcomplex,4,1.0,1.0,Compl
         @test arr[:,2,1] == 2 .* arr[:,1,1]
         @test isapprox(arr[:,1,2] , 3 .* arr[:,1,1], atol=1E-15)
         @test arr[:,2,2] == 4 .* arr[:,1,1]
+
+        laguerreeval = reshape(mapslices(i -> InverseLaplace._laguerre(i,1.0),arr,dims=(1)),(2,2))
+        @test laguerreeval[1,1] == InverseLaplace._laguerre(scal,1.0)
+        @test laguerreeval[2,1] == 2 * InverseLaplace._laguerre(scal,1.0)
+        @test isapprox(laguerreeval[1,2], 3 * InverseLaplace._laguerre(scal,1.0), atol=1E-15)
+        @test laguerreeval[2,2] == 4 * InverseLaplace._laguerre(scal,1.0)
+
+        # Noticed that 2 and 3 have changed places.
+        # Check _arrcoeff or colFFTwshift?
+        @test_broken isapprox(laguerreeval, [1 2; 3 4] .* InverseLaplace._laguerre(scal,1.0), atol = 1E-15)
 end
