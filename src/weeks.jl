@@ -263,7 +263,7 @@ function _arrcoeff(F,N,sig,b)
     FF = [FF1 * (b + imaginary_unit * y1) for (FF1,y1) in zip(FF0,y)]
     FFTranspose = Array{Complex{Float64},ndims(Feval)+1}(undef,(length(y),size(Feval)...))
     # Collect coeffs along first dimension (columns)
-    permutedims!(FFTranspose,cat(FF...;dims=(ndims(Feval)+1)),(range(ndims(Feval)+1,stop=1,step=-1)))
+    permutedims!(FFTranspose,cat(FF...;dims=(ndims(Feval)+1)),[ndims(Feval)+1,1:ndims(Feval)...])
     # Plan FFT for coeffs
     FFp = FFTW.plan_fft!(FFTranspose,1,flags=FFTW.MEASURE)
     a = colFFTwshift(FFp,FFTranspose) ./ (2 * N)
