@@ -32,8 +32,8 @@ end
 _get_coefficients(w::Weeks{T}) where T <: Number =  _get_coefficients(w.func, w.Nterms, w.sigma, w.b, T)
 _set_coefficients(w::Weeks) = (w.coefficients = _get_coefficients(w))
 
-_get_array_coefficients(w::Weeks{T}) where T <: Number = _get_coefficients(w.func, w.Nterms, w.sigma, w.b, T)
-_set_array_coefficients(w::Weeks) = (w.coefficients = _get_coefficients(w))
+_get_array_coefficients(w::Weeks{T}) where T <: Number = _get_array_coefficients(w.func, w.Nterms, w.sigma, w.b, T)
+#_set_array_coefficients(w::Weeks) = (w.coefficients = _get_coefficients(w))
 
 const weeks_default_num_terms = 64
 
