@@ -47,3 +47,24 @@ let arr = try InverseLaplace._get_array_coefficients(arrFcomplex,4,1.0,1.0,Compl
         laguerreeval = reshape(mapslices(i -> InverseLaplace._laguerre(i,1.0),arr,dims=(1)),(2,2))
         @test isapprox(laguerreeval, [1 2; 3 4] .* InverseLaplace._laguerre(scal,1.0), atol = 1E-15)
 end
+
+
+
+# Test the ILT calculation for arrays and compare with the scalar Weeks method
+let
+    # Weeks parameters
+        σ = 1.0
+        b = 0.5
+        t = 1.0
+
+    # Evaluating ILT for array valued function
+    coef = InverseLaplace._get_array_coefficients(arrFcomplex,4,σ,b,Complex)
+    lag = reshape(mapslices(i -> InverseLaplace._laguerre(i,2 * b * t),coef,dims=(1)),(2,2))
+    inverse = lag .* exp((σ - b) * t)
+
+    # Evaluating ILT for scalar function, then multiplying by an array
+    Ft = Weeks(Fcomplex,4,σ,b,datatype=Complex)
+    Ft_array_eval = [1 2;3 4]  .* Ft(1.0)
+
+    @test isapprox(Ft_array_eval , inverse, atol=1E-15)
+end
