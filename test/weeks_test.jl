@@ -43,19 +43,22 @@ setparameters(fle,2.0,2.0,80)
 @test c1 != fle.coefficients
 
 ### Complex
+@testset "Complex-functionality" begin
+    function Fcomplex(s)
+        # Laplace domain
+        α = complex(-0.3, 6.0)
+        return 1 / (s - α)
+    end
 
-function Fcomplex(s)
-    # Laplace domain
-    α = complex(-0.3, 6.0)
-    return 1 / (s - α)
-end
+    function fcomplex(t)
+        # Time domain
+        α = complex(-0.3, 6.0)
+        return exp(α * t)
+    end
 
-function fcomplex(t)
-    # Time domain
-    α = complex(-0.3, 6.0)
-    return exp(α * t)
-end
-
-let Fc = Weeks(Fcomplex, 256, 1.0, 10.0, datatype=Complex),  trange = range(0.0, stop=15.0, length=5)
-    @test isapprox(Fc.(trange), fcomplex.(trange), atol=0.0001)
+    let Fc = Weeks(Fcomplex, 256, 1.0, 10.0, datatype=Complex),  trange = range(0.0, stop=15.0, length=5)
+        @test isapprox(Fc.(trange), fcomplex.(trange), atol=0.0001)
+        Fr = Weeks(Fcomplex, 256, 1.0, 10.0)
+        @test real(Fc.(trange)) == Fr.(trange)
+    end
 end

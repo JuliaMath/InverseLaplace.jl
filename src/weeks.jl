@@ -15,7 +15,7 @@ mutable struct Weeks{T} <: AbstractWeeks
     Nterms::Int
     sigma::Float64
     b::Float64
-    coefficients::Array{T,1}
+    coefficients::Array{T}
 end
 
 function _get_coefficients(func, Nterms, sigma, b, ::Type{T}) where T <:Number
@@ -36,6 +36,7 @@ _get_array_coefficients(w::Weeks{T}) where T <: Number = _get_array_coefficients
 #_set_array_coefficients(w::Weeks) = (w.coefficients = _get_coefficients(w))
 
 const weeks_default_num_terms = 64
+const weeks_default_ndims = 0
 
 """
    w::Weeks{datatype} = Weeks(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0; datatype=Float64)
@@ -59,14 +60,25 @@ julia> ft(pi/2)
 ```
 """
 function Weeks(func::Function, Nterms::Integer=weeks_default_num_terms,
-               sigma=1.0, b=1.0; datatype=Float64)
+               sigma=1.0, b=1.0; datatype=Float64,rank::Integer=weeks_default_ndims)
     outdatatype = datatype == Complex ? Complex{Float64} : datatype  # allow `Complex` as abbrev for Complex{Float64}
-    return Weeks{outdatatype}(func, Nterms, sigma, b, _get_coefficients(func, Nterms, sigma, b, outdatatype))
+    if rank == 0
+        # Use scalar-functionality
+        return Weeks{outdatatype}(func, Nterms, sigma, b, _get_coefficients(func, Nterms, sigma, b, outdatatype))
+    else
+        # Use array-functionality
+        return Weeks{outdatatype}(func, Nterms, sigma, b, _get_array_coefficients(func, Nterms, sigma, b, outdatatype))
+    end
 end
 
 function eval_ilt(w::Weeks, t)
-    L = _laguerre(w.coefficients, 2 * w.b * t)
-    return  L * exp((w.sigma - w.b) * t)
+    coeffs = w.coefficients
+    if ndims(coeffs)==1
+        L = _laguerre(coeffs, 2 * w.b * t)
+    else
+        L = reshape(mapslices(i -> _laguerre(i,2 * w.b * t),coeffs,dims=(1)),size(coeffs)[2:end])
+    end
+    return  L .* exp((w.sigma - w.b) * t)
 end
 
 function eval_ilt(w::Weeks, t::AbstractArray)
