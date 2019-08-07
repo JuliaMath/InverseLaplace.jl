@@ -1,6 +1,7 @@
-# import Optim  # broken
+import Optim  # broken
 import AbstractFFTs
 import FFTW
+import RecursiveArrayTools
 
 abstract type AbstractWeeks <: AbstractILt end
 
@@ -273,11 +274,15 @@ function _arrcoeff(F,N,sig,b)
     FF0 = map(F, s)
     Feval= FF0[1] # To get dimensions of Weeks.func
     FF = [FF1 * (b + imaginary_unit * y1) for (FF1,y1) in zip(FF0,y)]
-    FFTranspose = Array{Complex{Float64},ndims(Feval)+1}(undef,(length(y),size(Feval)...))
+
     # Collect coeffs along first dimension (columns)
-    permutedims!(FFTranspose,cat(FF...;dims=(ndims(Feval)+1)),[ndims(Feval)+1,1:ndims(Feval)...])
+    FFVA = RecursiveArrayTools.VectorOfArray(FF)
+    FFarr = convert(Array,FFVA)
+    FFTranspose = Array{Complex{Float64},ndims(Feval)+1}(undef,(length(y),size(Feval)...))
+    permutedims!(FFTranspose,FFarr,[ndims(Feval)+1,1:ndims(Feval)...])
+
     # Plan FFT for coeffs
-    FFp = FFTW.plan_fft!(FFTranspose,1,flags=FFTW.MEASURE)
+    FFp = FFTW.plan_fft!(similar(FFTranspose),1,flags=FFTW.MEASURE)
     a = colFFTwshift(FFp,FFTranspose) ./ (2 * N)
     #
     if length(a)==size(a)[1]
@@ -286,7 +291,6 @@ function _arrcoeff(F,N,sig,b)
         return exp.(Complex(zero(h),-one(h)) * n*h/2)  .* a
     end
 end
-
 
 
 function _laguerre(a::AbstractVector,x::AbstractArray)
