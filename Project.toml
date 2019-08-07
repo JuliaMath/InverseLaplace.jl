@@ -1,0 +1,10 @@
+name = "InverseLaplace"
+uuid = "57a94069-d402-5eca-b090-de482fba6ed6"
+
+[deps]
+AbstractFFTs = "621f4979-c628-5d54-868e-fcf4e3e8185c"
+FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
+Optim = "429524aa-4258-5aef-a3af-852621145aeb"
+RecursiveArrayTools = "731186ca-8d62-57ce-b412-fbd966d074cd"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
