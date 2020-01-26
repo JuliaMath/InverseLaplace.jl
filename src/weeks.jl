@@ -1,6 +1,7 @@
 # import Optim  # broken
 import AbstractFFTs
 import FFTW
+using LinearAlgebra: transpose!
 
 abstract type AbstractWeeks <: AbstractILt end
 
@@ -15,12 +16,12 @@ mutable struct Weeks{T} <: AbstractWeeks
     Nterms::Int
     sigma::Float64
     b::Float64
-    coefficients::Array{T,1}
+    coefficients::Array{T,2}
 end
 
 function _get_coefficients(func, Nterms, sigma, b, ::Type{T}) where T <:Number
     a0 = _wcoeff(func, Nterms, sigma, b, T)
-    return a0[Nterms+1:2*Nterms]
+    return a0[Nterms+1:2*Nterms,:]
 end
 
 _get_coefficients(w::Weeks{T}) where T <: Number =  _get_coefficients(w.func, w.Nterms, w.sigma, w.b, T)
@@ -221,6 +222,7 @@ _wcoeff(F, N, sig, b, ::Type{T}) where T <: Real = real(_wcoeff(F, N, sig, b))
 _wcoeff(F, N, sig, b, ::Type{T}) where T <: Complex = _wcoeff(F, N, sig, b)
 
 function _wcoeff(F, N, sig, b)
+    FN = length(F(complex(1.01)))
     n = -N:N-1  # FIXME: remove 1 and test
     h = pi / N # FIXME: what data type ?
     th = h .* (n .+ 1//2)
@@ -229,9 +231,15 @@ function _wcoeff(F, N, sig, b)
     s = sig .+ imaginary_unit * y
     FF0 = map(F, s)
     FF = [FF1 * (b + imaginary_unit * y1) for (FF1,y1) in zip(FF0,y)]
-    a = (FF |> AbstractFFTs.fftshift |> FFTW.fft |> AbstractFFTs.fftshift) / (2 * N)
-    return exp.(Complex(zero(h),-one(h)) * n*h/2) .* a
+    FFTranspose = Array{Complex{Float64},2}(undef,(length(y),FN))
+    transpose!(FFTranspose,reshape(vcat(FF...),(FN,length(y))))
+    FFp = FFTW.plan_fft!(FFTranspose,1,flags=FFTW.MEASURE)
+    a = colFFTwshift(FFp,FFTranspose) / (2 * N)
+    return exp.(Complex(zero(h),-one(h)) * n*h/2)  .* a
 end
+
+
+
 
 function _laguerre(a::AbstractVector,x::AbstractArray)
     N = length(a) - 1
@@ -247,13 +255,15 @@ function _laguerre(a::AbstractVector,x::AbstractArray)
     return unm1
 end
 
-function _laguerre(a::AbstractVector,x)
-    n = length(a) - 1
+
+
+function _laguerre(a::AbstractArray,x)
+    n = size(a)[1] - 1
     unp1 = zero(x)
-    un = a[n+1]*one(x)
+    un = a[n+1,:] .* one(x)
     local unm1
     for n in n:-1:1
-        unm1 = (1//n)*(2*n-1-x) * un - n/(n+1)*unp1 + a[n]
+        unm1 = (1//n)*(2*n-1-x) .* un .- n/(n+1)*unp1 + a[n,:]
         unp1 = un
         un = unm1
     end
@@ -282,4 +292,18 @@ function _werr2t(b, F, N, sig)
     a = _wcoeff(F,M,sig,b)
     sa2 = sum(abs.(@view a[3*N+1:4*N]))
     return log(sa2)
+end
+
+
+function colFFTwshift(plan::N, F::Array{T,2}) where {T<:Number,N<:FFTW.cFFTWPlan}
+
+    #   Performs a columnwise FFT along with two shifts when computing the Laguerre coefficients
+    #   of a vector valued function "weeks.func".
+    #
+    #   plan is a predetermined transform plan of the columns of F.
+    #
+    #   Samples of each vector element of "w.func" are stored in the columns of the
+    #   array F.
+
+    return AbstractFFTs.fftshift(plan*AbstractFFTs.fftshift(F))
 end
