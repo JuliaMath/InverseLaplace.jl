@@ -1,11 +1,12 @@
-fl = ILt(s -> 1/s^3, talbot)
-@test isapprox( fl(1.0), 0.5; atol =  1e-9)
-@test isapprox( fl.([1.0,2.0]), [0.5, 2.0]; atol =  1e-9)
+@testset "interface test" begin
+    fl = ILt(s -> 1/s^3, talbot)
+    @test isapprox(fl(1.0), 0.5; atol =  1e-9)
+    @test isapprox(fl.([1.0,2.0]), [0.5, 2.0]; atol =  1e-9)
 
-fl = ILt(s -> 1/s^3, gwr,8)
-@test isapprox( fl(1.0), 0.5; atol = 1e-5)
+    fl = ILt(s -> 1/s^3, gwr,8)
+    @test isapprox(fl(1.0), 0.5; atol = 1e-5)
 
-p = ILtPair(Weeks(s -> s/(1+s^2)), cos)
+    p = ILtPair(Weeks(s -> s/(1+s^2)), cos)
 
 ## Optim is broken
 # e1 = abserr(p, 10.0)
@@ -13,8 +14,9 @@ p = ILtPair(Weeks(s -> s/(1+s^2)), cos)
 # e2 = abserr(p, 10.0)
 # @test e2 < e1
 
-@test typeof(Weeks(iltpair_power(5))) <: ILtPair
+    @test typeof(Weeks(iltpair_power(5))) <: ILtPair
 
 # Default method is talbot
-fl1 = ILt( s -> 1/s)
-@test fl1.iltfunc == talbot
+    fl1 = ILt(s -> 1/s)
+    @test fl1.iltfunc == talbot
+end
