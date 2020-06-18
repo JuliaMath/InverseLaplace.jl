@@ -8,15 +8,6 @@ Linux, OSX: [![Build Status](https://travis-ci.org/jlapeyre/InverseLaplace.jl.sv
 [![Coverage Status](https://coveralls.io/repos/github/jlapeyre/InverseLaplace.jl/badge.svg?branch=master)](https://coveralls.io/github/jlapeyre/InverseLaplace.jl?branch=master)
 [![codecov](https://codecov.io/gh/jlapeyre/InverseLaplace.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/jlapeyre/InverseLaplace.jl)
 
-This implements some numerical methods for computing inverse Laplace transforms in Julia.
-
-InverseLaplace v0.1.0 is the last version that supports Julia v0.6
+This package implements some numerical methods for computing inverse Laplace transforms in Julia.
 
 See the documentation https://jlapeyre.github.io/InverseLaplace.jl/latest .
-
-Note: A small part of `InverseLaplace.jl` depends on `Optim.jl`, which is currently
-broken on Julia v0.7. So optimization is disabled for `InverseLaplace.jl` versions
-greater than v0.1.0
-
-Note: the last version of this module supporting Julia v0.4 is tagged v0.0.2.
-the last version of this module supporting Julia v0.6 is tagged v0.1.0.
