@@ -1,10 +1,25 @@
 name = "InverseLaplace"
-uuid = "57a94069-d402-5eca-b090-de482fba6ed6"
+uuid = "e24f45a5-4790-5a38-8b2c-33d770a4e70f"
+authors = ["John Lapeyre <jlapeyre@users.noreply.github.com>"]
+license = "MIT"
+desc = "Numeric inverse Laplace transform"
+version = "0.3.2"
 
 [deps]
 AbstractFFTs = "621f4979-c628-5d54-868e-fcf4e3e8185c"
 FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
-Optim = "429524aa-4258-5aef-a3af-852621145aeb"
+
 RecursiveArrayTools = "731186ca-8d62-57ce-b412-fbd966d074cd"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
+
+[compat]
+AbstractFFTs = "0.5.0"
+FFTW = "1.2.0"
+SpecialFunctions = "0.8, 0.10"
+julia = "1"
+
+[extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

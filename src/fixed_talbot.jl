@@ -62,9 +62,7 @@ function talbotarr(func, t::AbstractArray, M)
     tmax = maximum(t)
     r = (2 * bM) / (5 * tmax)
     fr = (1//2) * func(r)
-    for j in 1:length(terms)
-        terms[j] =  exp(r * t[j]) * fr
-    end
+    terms .= exp.(r .* t) .* fr
     for i in 1:M-1
         theta = i * (pi/bM)
         s = r * theta * (complex(cot(theta), one(theta)))
@@ -74,9 +72,7 @@ function talbotarr(func, t::AbstractArray, M)
             terms[j] += real(exp(t[j] * s) * fs)
         end
     end
-    for j in 1:length(terms)
-        terms[j] *= 2 / (5 * tmax)
-    end
+    terms .= terms .* 2 / (5 * tmax)
     return terms
 end
 
