@@ -17,8 +17,9 @@
 
 
 #= Compute Post-Widder coefficients Vk for N terms. Also referred to as Salzer summation weights or Stehfest coefficients.
-Only depend on the approximation order (N) and the precision. M must be even. Coefficients get very large in magnitude and oscillate rapidly.
-Must be careful to avoid catastrophic cancellation. 
+Only depend on the approximation order (N) and the precision. M must be even but can be precomputed and used only once. 
+Coefficients get very large in magnitude and oscillate rapidly. Must be careful to avoid catastrophic cancellation for lower precision. 
+For  N < 18 double precision is usually ok but less accurate, utilizng defualt BigFloat precision and N = 36 usually provides sufficient accuracy.
 =#
 function _PWcoeffs(N)
     if isodd(N)
@@ -26,7 +27,7 @@ function _PWcoeffs(N)
         @warn "N must be even... increment N += 1"
     end
     v = zeros(BigFloat, N)
-    aux = zero(BigFloat)
+    aux = zero(eltype(v))
     for k in 1:N
         for j in floor(Int, (k + 1)/2):minimum(Int, [k, N/2])
             aux = big(j)^(N/2)*factorial(big(2*j))
