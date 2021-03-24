@@ -16,10 +16,17 @@
 # Integral Transforms and Special Functions 11.3 (2001): 225-232.
 
 
-# Compute Post-Widder coefficients Vk for N terms. 
+#= Compute Post-Widder coefficients Vk for N terms. Also referred to as Salzer summation weights or Stehfest coefficients.
+Only depend on the approximation order (N) and the precision. M must be even. Coefficients get very large in magnitude and oscillate rapidly.
+Must be careful to avoid catastrophic cancellation. 
+=#
 function _PWcoeffs(N)
+    if isodd(N)
+        N += 1
+        @warn "N must be even... increment N += 1"
+    end
     v = zeros(BigFloat, N)
-    aux = big(0.0)
+    aux = zero(BigFloat)
     for k in 1:N
         for j in floor(Int, (k + 1)/2):minimum(Int, [k, N/2])
             aux = big(j)^(N/2)*factorial(big(2*j))
