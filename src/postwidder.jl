@@ -17,17 +17,17 @@
 
 
 # Compute Post-Widder coefficients Vk for N terms. 
-function _PWcoeffs(N)
+function _PWcoeffs(N::Integer)
     v = zeros(BigFloat, N)
     aux = big(0.0)
     for k in 1:N
-        for j in floor(Int, (k + 1)/2):minimum(Int, [k, N/2])
-            aux = big(j)^(N/2)*factorial(big(2*j))
-            aux /= factorial(big(N/2 - j))*factorial(big(j))*factorial(big(j-1))
-            aux /= factorial(big(k - j))*factorial(big(2*j - k))
+        for j in floor(Int, div(k + 1, 2)):minimum(Int, [k, div(N, 2)])
+            aux = big(j)^(div(N, 2)) * factorial(big(2 * j))
+            aux /= factorial(big(div(N, 2) - j)) * factorial(big(j)) * factorial(big(j - 1))
+            aux /= factorial(big(k - j)) * factorial(big(2 * j - k))
             v[k] += aux
         end
-        v[k] *= (-1)^(k + N/2) 
+        v[k] *= (-1)^(k + div(N, 2))
     end
     return v
 end
@@ -54,9 +54,9 @@ function postwid(func::Function, t::AbstractFloat; v = _PWcoeffs(18))
     a = zero(eltype(v))
     for k in 1:N
         bk = convert(eltype(v), k)
-        a += v[k]*func(bk*log(2)/t)
+        a += v[k] * func(bk * log(2) / t)
     end
-    return a*log(2)/t
+    return a * log(convert(eltype(a), 2)) / t
 end
 """
     postwid(func::Function, t::AbstractArray, v::Array{AbstractFloat,1}=_PWcoeffs(N))
