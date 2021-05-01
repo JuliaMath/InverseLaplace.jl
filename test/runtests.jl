@@ -56,3 +56,5 @@ end
     @test typeof(talbot(s -> 1/s^3, 1//10)) == BigFloat
     @test typeof(talbot(s -> 1/s^3, 1//10, 64)) == BigFloat
 end
+
+@time @testset "postwidder" begin include("postwidder_tests.jl") end
