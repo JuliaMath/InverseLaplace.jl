@@ -98,7 +98,7 @@ function fixed_sk(f::Function, N, t::AbstractArray)
     return a, sk, h
 end
 
-function hyper_fixed(a, sk, h, t::AbstractFloat)
+function hyper_fixed_points(a, sk, h, t::AbstractFloat)
     b = zero(eltype(a))
     for ind in eachindex(sk)
         b += a[ind]*exp(sk[ind]*t)
@@ -132,7 +132,7 @@ function hyper_fixed(f::Function, t::AbstractArray; N = 24)
     a, sk, h = fixed_sk(f, N, t)
     out = zeros(eltype(h), length(t))
     Threads.@threads for ind in eachindex(t)
-        out[ind] = hyper_fixed(a, sk, h, t[ind])
+        out[ind] = hyper_fixed_points(a, sk, h, t[ind])
     end
     return out
 end

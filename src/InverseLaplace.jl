@@ -12,6 +12,7 @@ export Talbot, GWR, ILT
 export TransformPair, ILtPair, abserr, iltpair_power
 export ilt, talbot, gwr
 export postwid, _PWcoeffs
+export hyperbola, hyper_fixed
 
 abstract type AbstractILt end
 
@@ -156,5 +157,6 @@ include("gwr.jl")
 include("weeks.jl")
 include("pairtest.jl")
 include("postwidder.jl")
+include("bromwhich_contour.jl")
 
 end # module
