@@ -46,4 +46,27 @@ t = 1.0:10.0
 @test isapprox(hyperbola(s -> 1/(s+1), t), exp.(-t))
 @test isapprox(hyper_fixed(s -> 1/(s+1), t), exp.(-t)) 
 
+#### F(s) = 1/s - 1/(s + 1), f(t) = 1 - exp(-t)
+
+# test for single time point
+t = 1.0
+@test isapprox(hyperbola(s -> 1/s - 1/(s + 1), t), 1 - exp(-t))
+
+t = 5.0
+@test isapprox(hyperbola(s -> 1/s - 1/(s + 1), t), 1 - exp(-t))
+
+# test across t array
+t = 1.0:10.0
+@test isapprox(hyperbola(s -> 1/s - 1/(s + 1), t), 1 .- exp.(-t))
+@test isapprox(hyper_fixed(s -> 1/s - 1/(s + 1), t), 1 .- exp.(-t)) 
+
+# evaluation at t = 0 requires inputting a positive value close to 0
+t = 1e-30
+@test isapprox(hyperbola(s -> 1/s - 1/(s + 1), t), 1 - exp(-0))
+
+t = 1e-2:10.0
+@test isapprox(hyperbola(s -> 1/s - 1/(s + 1), t), 1 .- exp.(-t))
+@test isapprox(hyper_fixed(s -> 1/s - 1/(s + 1), t, N = 56), 1 .- exp.(-t)) 
+
+
 end
