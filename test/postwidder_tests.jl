@@ -82,6 +82,4 @@ setprecision(128)
 @test isapprox(postwid(s -> 1/(s+1), t, v = _PWcoeffs(36)), exp.(-t), rtol = 1e-8)
 
 
-
-
 end # module
