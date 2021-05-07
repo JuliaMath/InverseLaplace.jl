@@ -59,4 +59,3 @@ end
 
 @time @testset "postwidder" begin include("postwidder_tests.jl") end
 @time @testset "hyperbola contour" begin include("hyperbolacontour_tests.jl") end
-

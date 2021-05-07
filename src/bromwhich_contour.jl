@@ -22,7 +22,7 @@ end
 # derivitive of hyperbola contour
 function ds(θ, N, t)
     μ = 4.492075287 * N / t
-    ϕ = 1.172104229 
+    ϕ = 1.172104229
     return im * μ * cosh(θ + im * ϕ)
 end
 
@@ -30,7 +30,7 @@ end
 """
     hyperbola(f::Function, t::AbstractFloat; N::Int = 16)
 
-Evaluate the inverse Laplace transform of `f` at the point `t` by approximating the Bromwhich integral with a hyperbola contour. 
+Evaluate the inverse Laplace transform of `f` at the point `t` by approximating the Bromwhich integral with a hyperbola contour.
 A real valued time-domain signal is assumed with the integral being calculated by a computable series applying the midpoint rule.
 
 The contour is defined by several parameters. μ controls the extreme nodes with a larger parameter moving the outlier nodes further into left half plane.
@@ -42,7 +42,7 @@ The number of nodes, N, defaults to 16. The optimal N is case dependent and arbi
 
 Bromwhich contour approaches should only be applied for t > 0. We are aiming to optimize the convergence as N -> inf so our parameters are ~ N / t.
 In other words we want the Bromwhich integral to converge rapidly, and this can be done by starting and ending our integration path in the left hand plane causing exp(st) to decay.
-If t = 0, the exponential factor does not cause good convergence. If you want to evaluate for t = 0, you should try a small positive value like 1e-30. 
+If t = 0, the exponential factor does not cause good convergence. If you want to evaluate for t = 0, you should try a small positive value like 1e-30.
 
 # Example
 
@@ -67,23 +67,22 @@ function hyperbola(f::Function, t::AbstractArray; N = 16)
     Threads.@threads for ind in eachindex(t)
         out[ind] = hyperbola(f, t[ind], N = N)
     end
-    return out   
+    return out
 end
-
 
 #### fixed integration path (can precompute) ####
 
 # get the fixed integration components
 function hyper_coef(N, t::AbstractArray; ϕ = 1.09)
-    A = acosh(((π - 2*ϕ)*t[end]/t[1] + 4*ϕ - π)/((4*ϕ - π)*sin(ϕ)))
-    μ = (4*π*ϕ - π^2)*N/t[end]/A
-    h = A/N
+    A = acosh(((π - 2 * ϕ) * t[end] / t[1] + 4 * ϕ - π) / ((4 * ϕ - π) * sin(ϕ)))
+    μ = (4 * π * ϕ - π^2) * N / t[end] / A
+    h = A / N
     return μ, h
 end
 
-# compute the fixed hyperbola contour 
-s_fixed(θ, μ; ϕ = 1.09) = μ + im*μ*sinh(θ + im*ϕ)
-ds_fixed(θ, μ; ϕ = 1.09) = im*μ*cosh(θ + im*ϕ)
+# compute the fixed hyperbola contour
+s_fixed(θ, μ; ϕ = 1.09) = μ + im * μ * sinh(θ + im * ϕ)
+ds_fixed(θ, μ; ϕ = 1.09) = im * μ * cosh(θ + im * ϕ)
 
 # compute the function values over the fixed contour nodes
 function fixed_sk(f::Function, N, t::AbstractArray)
@@ -91,9 +90,9 @@ function fixed_sk(f::Function, N, t::AbstractArray)
     a = zeros(Complex{eltype(h)}, Int(N))
     sk = similar(a)
     Threads.@threads for k in 0:Int(N)-1
-        sk[k+1] = s_fixed((k + 1/2)*h, μ)
-        dsk = ds_fixed((k + 1/2)*h, μ)
-        a[k+1] = f(sk[k+1])*dsk
+        sk[k+1] = s_fixed((k + 1/2) * h, μ)
+        dsk = ds_fixed((k + 1/2) * h, μ)
+        a[k+1] = f(sk[k + 1]) * dsk
     end
     return a, sk, h
 end
@@ -101,24 +100,24 @@ end
 function hyper_fixed_points(a, sk, h, t::AbstractFloat)
     b = zero(eltype(a))
     for ind in eachindex(sk)
-        b += a[ind]*exp(sk[ind]*t)
+        b += a[ind] * exp(sk[ind] * t)
     end
-    return imag(b)*h/π
+    return imag(b) * h / π
 end
 
 """
     hyper_fixed(f::Function, t::AbstractArray; N = 24)
 
-Evaluate the inverse Laplace transform of `f` at an array of `t` by approximating the Bromwhich integral with a fixed hyperbola contour. 
+Evaluate the inverse Laplace transform of `f` at an array of `t` by approximating the Bromwhich integral with a fixed hyperbola contour.
 A real valued time-domain signal is assumed with the integral being calculated by a computable series applying the midpoint rule.
 
 In contrast to `hyperbola` where the contour is dependent on 't', here we fix the contour for the entire array of `t` values.
 This function should be considered when F(s) is complex and costly to compute where we want to minimize the number of evaulations of F(s).
 This operates under the assumption that f(t) is needed for many values of `t` over some interval `t ∈ (t1:t2)`. The parameters are now time independent.
-The angle value of the contour defaults to `ϕ = 1.09`. `ϕ` and the number of nodes `N` can be adjusted for accuracy. 
+The angle value of the contour defaults to `ϕ = 1.09`. `ϕ` and the number of nodes `N` can be adjusted for accuracy.
 
 This approach will in general be less accurate than `hyperbola` as we are using the same contour over an array of time values, instead of an optimized contour at each time.
-Bromwhich contour approaches should only be applied for t > 0. 
+Bromwhich contour approaches should only be applied for t > 0.
 
 # Example
 
