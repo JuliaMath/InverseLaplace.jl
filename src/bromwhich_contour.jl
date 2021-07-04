@@ -52,6 +52,7 @@ julia> InverseLaplace.hyperbola(s -> 1/(s + 1), 2.0)
 """
 function hyperbola(f::Function, t::AbstractFloat; N = 16)
     a =  zero(Complex{eltype(t)})
+    N = convert(eltype(t), N)
     h = 1.081792140 / N
     for k in 0:N-1
         sk = s((k + 1/2) * h, N, t)
