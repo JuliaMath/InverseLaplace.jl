@@ -11,7 +11,7 @@ export Weeks, WeeksErr, setparameters
 export Talbot, GWR, ILT
 export TransformPair, ILtPair, abserr, iltpair_power
 export ilt, talbot, gwr
-export postwid, _PWcoeffs
+export gaverstehfest, stehfest_coeffs
 
 abstract type AbstractILt end
 
@@ -155,6 +155,6 @@ include("fixed_talbot.jl")
 include("gwr.jl")
 include("weeks.jl")
 include("pairtest.jl")
-include("postwidder.jl")
+include("gaverstehfest.jl")
 
 end # module
