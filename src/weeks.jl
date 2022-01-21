@@ -18,7 +18,7 @@ mutable struct Weeks{T} <: AbstractWeeks
     coefficients::Array{T,1}
 end
 
-function _get_coefficients(func, Nterms, sigma, b, ::Type{T}) where T <:Number
+function _get_coefficients(func, Nterms::Integer, sigma, b, ::Type{T}) where T <:Number
     a0 = _wcoeff(func, Nterms, sigma, b, T)
     return a0[Nterms+1:2*Nterms]
 end
@@ -66,14 +66,14 @@ function eval_ilt(w::Weeks, t::AbstractArray)
 end
 
 ## FIXME: remove magic numbers below
-function optimize(w::Weeks, t)
+function optimize!(w::Weeks, t)
     (w.sigma, w.b) = _optimize_sigma_and_b(w.func, t, w.Nterms, 0.0, 30, 30)
     w.coefficients = _get_coefficients(w)
     return w
 end
 
 """
-    optimize(w::AbstractWeeks, t, Nterms)
+    optimize!(w::AbstractWeeks, t, Nterms)
 
 Optimize the parameters of the inverse Laplace transform `w` at the
 argument `t`. If `Nterms` is ommitted, the current value of `w.Nterms`
@@ -84,16 +84,16 @@ of `t`, the accuracy is relatively insensitive to the parameters. For other
 values of `t`, even using optimized parameters results in estimates of
 the inverse transform that are extremely inaccurate.
 
-`optimize` is expensive in CPU time and allocation, it performs nested single-parameter
+`optimize!` is expensive in CPU time and allocation, it performs nested single-parameter
 optimization over two parameterss.
 """
-function optimize(w::AbstractWeeks, t, Nterms)
+function optimize!(w::AbstractWeeks, t, Nterms)
     w.Nterms = Nterms
-    return optimize(w, t)
+    return optimize!(w, t)
 end
 
 """
-    opteval(w::AbstractWeeks, t, Nterms)
+    opteval!(w::AbstractWeeks, t, Nterms)
 
 estimate an inverse Laplace transform at argument `t` using `w` after
 optimizing the parameters for `t`. If `Nterms` is omitted, then the
@@ -101,12 +101,12 @@ current value of `w.Nterms` is used.
 
 Use `Weeks` or `WeeksErr` to create `w`.
 """
-function opteval(w::AbstractWeeks, t, Nterms)
-    optimize(w, t, Nterms)
+function opteval!(w::AbstractWeeks, t, Nterms)
+    optimize!(w, t, Nterms)
     return w(t)
 end
 
-opteval(w::AbstractWeeks, t) = opteval(w, t, w.Nterms)
+opteval!(w::AbstractWeeks, t) = opteval!(w, t, w.Nterms)
 
 """
     setparameters(w::AbstractWeeks, sigma, b, Nterms)
@@ -260,7 +260,7 @@ function _laguerre(a::AbstractVector,x)
     return unm1
 end
 
-function _optimize_sigma_and_b(F, t, N, sig0, sigmax, bmax)
+function _optimize_sigma_and_b(F, t, N::Integer, sig0, sigmax, bmax)
     sigma_opt = Optim.minimizer(Optim.optimize(sig -> _werr2e(sig, F,t,N, sig0, sigmax, bmax), sig0, sigmax))
     b_opt = Optim.minimizer(Optim.optimize(b -> _werr2t(b, F, N, sigma_opt), 0, bmax))
     return (sigma_opt, b_opt)
