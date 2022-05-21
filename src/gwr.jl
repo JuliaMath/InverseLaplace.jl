@@ -43,7 +43,7 @@ function gwr(func, t, M)
     G0 = zeros(Dt, M1 + 1)
     for n in 1:M
         sm = zero(Dt)
-        bn = convert(Dt, n)
+        bn = big(n)
         for i in 0:n
             bi = convert(Dt, i)
             sm += binomial(big(n), big(i)) * (-1)^i * Fi[n + i]
