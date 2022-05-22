@@ -4,29 +4,11 @@
 # Weideman, J., and L. Trefethen.
 # Parabolic and hyperbolic contours for computing the Bromwich integral.
 # Mathematics of Computation 76.259 (2007): 1341-1356.
-
 # 2.
 # Liemert, André, and Alwin Kienle.
 # Application of the Laplace transform in time-domain optical spectroscopy and imaging.
 # Journal of biomedical optics 20.11 (2015): 110502.
 
-### adaptive contour for each time point (can't precompute f(s) or sk)
-
-# parameterized hyperbola contour
-# parameters are given by ref [2] which are given in increased precision from calculations given in [1]
-function s(θ, N, t)
-    μ = 4.492075287 * N / t
-    ϕ = 1.172104229 
-    return μ + im * μ * sinh(θ + im * ϕ)
-end
-# derivitive of hyperbola contour
-function ds(θ, N, t)
-    μ = 4.492075287 * N / t
-    ϕ = 1.172104229
-    return im * μ * cosh(θ + im * ϕ)
-end
-
-# compute the laplace transform along a hyperbola contour fixed time point
 """
     hyperbola(f::Function, t::AbstractFloat; N::Int = 16)
 
@@ -49,24 +31,61 @@ If t = 0, the exponential factor does not cause good convergence. If you want to
 ```jldoctest
 julia> InverseLaplace.hyperbola(s -> 1/(s + 1), 2.0)
 0.13533528323665164
+julia> InverseLaplace.hyperbola.(s -> 1/(s + 1), 1.0:3.0)
+3-element Vector{Float64}:
+ 0.36787944117147775
+ 0.13533528323665164
+ 0.04978706836793606
 """
-function hyperbola(f::Function, t::AbstractFloat; N = 16)
-    a =  zero(Complex{eltype(t)})
-    N = convert(eltype(t), N)
-    h = 1.081792140 / N
+function hyperbola(f::Function, t::T; N::Int = 16) where T
+    a =  zero(Complex{T})
+    h = T(1.081792140) / N
     for k in 0:N-1
-        sk = s((k + 1/2) * h, N, t)
-        dsk = ds((k + 1/2) * h, N, t)
+        sk, dsk = s((k + T(0.5)) * h, N, t)
         a += f(sk) * exp(sk * t) * dsk
     end
-    return imag(a) * h / pi
+    return imag(a) * h / π
 end
 
-# loop through an entire time array with multithreads
-function hyperbola(f::Function, t::AbstractArray; N = 16)
-    out = similar(t)
+# adaptive contour for each time point (can't precompute f(s) or sk)
+# parameterized hyperbola contour
+# parameters are given by ref [2] which are given in increased precision from calculations given in [1]
+function s(θ, N, t::T) where T
+    μ = T(4.492075287) * N / t
+    ϕ = T(1.172104229)
+    a = θ + im * ϕ
+    s = μ + im * μ * sinh(a)
+    ds = im * μ * cosh(a) # derivitive of hyperbola contour
+    return s, ds
+end
+
+"""
+    hyper_fixed(f::Function, t::AbstractArray; N = 24)
+
+Evaluate the inverse Laplace transform of `f` at an array of `t` by approximating the Bromwhich integral with a fixed hyperbola contour.
+A real valued time-domain signal is assumed with the integral being calculated by a computable series applying the midpoint rule.
+
+In contrast to `hyperbola` where the contour is dependent on 't', here we fix the contour for the entire array of `t` values.
+This function should be considered when F(s) is complex and costly to compute where we want to minimize the number of evaulations of F(s).
+This operates under the assumption that f(t) is needed for many values of `t` over some interval `t ∈ (t1:t2)`. The parameters are now time independent.
+The angle value of the contour defaults to `ϕ = 1.09`. `ϕ` and the number of nodes `N` can be adjusted for accuracy.
+
+This approach will in general be less accurate than `hyperbola` as we are using the same contour over an array of time values, instead of an optimized contour at each time.
+Bromwhich contour approaches should only be applied for t > 0.
+
+# Example
+
+```jldoctest
+julia> InverseLaplace.hyper_fixed(s -> 1/(s + 1), 2.0:3.0)
+2-element Vector{Float64}:
+ 0.1353352832366098
+ 0.04978706836781721
+"""
+function hyper_fixed(f::Function, t::AbstractArray; N = 24)
+    a, sk, h = fixed_sk(f, N, t)
+    out = zeros(eltype(h), length(t))
     Threads.@threads for ind in eachindex(t)
-        out[ind] = hyperbola(f, t[ind], N = N)
+        out[ind] = hyper_fixed_points(a, sk, h, t[ind])
     end
     return out
 end
@@ -104,35 +123,4 @@ function hyper_fixed_points(a, sk, h, t::AbstractFloat)
         b += a[ind] * exp(sk[ind] * t)
     end
     return imag(b) * h / π
-end
-
-"""
-    hyper_fixed(f::Function, t::AbstractArray; N = 24)
-
-Evaluate the inverse Laplace transform of `f` at an array of `t` by approximating the Bromwhich integral with a fixed hyperbola contour.
-A real valued time-domain signal is assumed with the integral being calculated by a computable series applying the midpoint rule.
-
-In contrast to `hyperbola` where the contour is dependent on 't', here we fix the contour for the entire array of `t` values.
-This function should be considered when F(s) is complex and costly to compute where we want to minimize the number of evaulations of F(s).
-This operates under the assumption that f(t) is needed for many values of `t` over some interval `t ∈ (t1:t2)`. The parameters are now time independent.
-The angle value of the contour defaults to `ϕ = 1.09`. `ϕ` and the number of nodes `N` can be adjusted for accuracy.
-
-This approach will in general be less accurate than `hyperbola` as we are using the same contour over an array of time values, instead of an optimized contour at each time.
-Bromwhich contour approaches should only be applied for t > 0.
-
-# Example
-
-```jldoctest
-julia> InverseLaplace.hyper_fixed(s -> 1/(s + 1), 2.0:3.0)
-2-element Vector{Float64}:
- 0.1353352832366098
- 0.04978706836781721
-"""
-function hyper_fixed(f::Function, t::AbstractArray; N = 24)
-    a, sk, h = fixed_sk(f, N, t)
-    out = zeros(eltype(h), length(t))
-    Threads.@threads for ind in eachindex(t)
-        out[ind] = hyper_fixed_points(a, sk, h, t[ind])
-    end
-    return out
 end
