@@ -1,6 +1,7 @@
-# import Optim  # broken
+import Optim  # broken
 import AbstractFFTs
 import FFTW
+import RecursiveArrayTools
 
 abstract type AbstractWeeks <: AbstractILt end
 
@@ -15,7 +16,7 @@ mutable struct Weeks{T} <: AbstractWeeks
     Nterms::Int
     sigma::Float64
     b::Float64
-    coefficients::Array{T,1}
+    coefficients::Array{T}
 end
 
 function _get_coefficients(func, Nterms::Integer, sigma, b, ::Type{T}) where T <:Number
@@ -23,10 +24,20 @@ function _get_coefficients(func, Nterms::Integer, sigma, b, ::Type{T}) where T <
     return a0[Nterms+1:2*Nterms]
 end
 
+function _get_array_coefficients(func, Nterms, sigma, b, ::Type{T}) where T <:Number
+    a0 = _arrcoeff(func,Nterms, sigma, b, T)
+    return selectdim(a0,1,Nterms+1:2*Nterms)
+end
+
+
 _get_coefficients(w::Weeks{T}) where T <: Number =  _get_coefficients(w.func, w.Nterms, w.sigma, w.b, T)
 _set_coefficients(w::Weeks) = (w.coefficients = _get_coefficients(w))
 
+_get_array_coefficients(w::Weeks{T}) where T <: Number = _get_array_coefficients(w.func, w.Nterms, w.sigma, w.b, T)
+#_set_array_coefficients(w::Weeks) = (w.coefficients = _get_coefficients(w))
+
 const weeks_default_num_terms = 64
+const weeks_default_ndims = 0
 
 """
    w::Weeks{datatype} = Weeks(func::Function, Nterms::Integer=64, sigma=1.0, b=1.0; datatype=Float64)
@@ -50,14 +61,25 @@ julia> ft(pi/2)
 ```
 """
 function Weeks(func::Function, Nterms::Integer=weeks_default_num_terms,
-               sigma=1.0, b=1.0; datatype=Float64)
+               sigma=1.0, b=1.0; datatype=Float64,rank::Integer=weeks_default_ndims)
     outdatatype = datatype == Complex ? Complex{Float64} : datatype  # allow `Complex` as abbrev for Complex{Float64}
-    return Weeks{outdatatype}(func, Nterms, sigma, b, _get_coefficients(func, Nterms, sigma, b, outdatatype))
+    if rank == 0
+        # Use scalar-functionality
+        return Weeks{outdatatype}(func, Nterms, sigma, b, _get_coefficients(func, Nterms, sigma, b, outdatatype))
+    else
+        # Use array-functionality
+        return Weeks{outdatatype}(func, Nterms, sigma, b, _get_array_coefficients(func, Nterms, sigma, b, outdatatype))
+    end
 end
 
 function eval_ilt(w::Weeks, t)
-    L = _laguerre(w.coefficients, 2 * w.b * t)
-    return  L * exp((w.sigma - w.b) * t)
+    coeffs = w.coefficients
+    if ndims(coeffs)==1
+        L = _laguerre(coeffs, 2 * w.b * t)
+    else
+        L = reshape(mapslices(i -> _laguerre(i,2 * w.b * t),coeffs,dims=(1)),size(coeffs)[2:end])
+    end
+    return  L .* exp((w.sigma - w.b) * t)
 end
 
 function eval_ilt(w::Weeks, t::AbstractArray)
@@ -232,6 +254,44 @@ function _wcoeff(F, N, sig, b)
     a = (FF |> AbstractFFTs.fftshift |> FFTW.fft |> AbstractFFTs.fftshift) / (2 * N)
     return exp.(Complex(zero(h),-one(h)) * n*h/2) .* a
 end
+
+# Laguerre coefficients for each function element are stored along first dimension
+function colFFTwshift(plan::N, F::AbstractArray) where {N<:FFTW.cFFTWPlan}
+    return AbstractFFTs.fftshift(plan*AbstractFFTs.fftshift(F,1),1)
+end
+
+_arrcoeff(F, N, sig, b, ::Type{T}) where T <: Real = real(_arrcoeff(F, N, sig, b))
+_arrcoeff(F, N, sig, b, ::Type{T}) where T <: Complex = _arrcoeff(F, N, sig, b)
+
+# Array version of _wcoeff, can output scalar version as well.
+function _arrcoeff(F,N,sig,b)
+    n = -N:N-1  # FIXME: remove 1 and test
+    h = pi / N # FIXME: what data type ?
+    th = h .* (n .+ 1//2)
+    y = b .* cot.(th / 2)
+    imaginary_unit = Complex(zero(eltype(y)), one(eltype(y)))
+    s = sig .+ imaginary_unit * y
+    FF0 = map(F, s)
+    Feval= FF0[1] # To get dimensions of Weeks.func
+    FF = [FF1 * (b + imaginary_unit * y1) for (FF1,y1) in zip(FF0,y)]
+
+    # Collect coeffs along first dimension (columns)
+    FFVA = RecursiveArrayTools.VectorOfArray(FF)
+    FFarr = convert(Array,FFVA)
+    FFTranspose = Array{Complex{Float64},ndims(Feval)+1}(undef,(length(y),size(Feval)...))
+    permutedims!(FFTranspose,FFarr,[ndims(Feval)+1,1:ndims(Feval)...])
+
+    # Plan FFT for coeffs
+    FFp = FFTW.plan_fft!(similar(FFTranspose),1,flags=FFTW.MEASURE)
+    a = colFFTwshift(FFp,FFTranspose) ./ (2 * N)
+    #
+    if length(a)==size(a)[1]
+        return vec(exp.(Complex(zero(h),-one(h)) * n*h/2)  .* a)
+    else
+        return exp.(Complex(zero(h),-one(h)) * n*h/2)  .* a
+    end
+end
+
 
 function _laguerre(a::AbstractVector,x::AbstractArray)
     N = length(a) - 1

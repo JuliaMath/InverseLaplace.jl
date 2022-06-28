@@ -8,6 +8,8 @@ version = "0.3.2"
 [deps]
 AbstractFFTs = "621f4979-c628-5d54-868e-fcf4e3e8185c"
 FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
+
+RecursiveArrayTools = "731186ca-8d62-57ce-b412-fbd966d074cd"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 
 [compat]
