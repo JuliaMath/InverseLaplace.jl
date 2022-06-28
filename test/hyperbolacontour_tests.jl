@@ -3,6 +3,16 @@ module hyperbolaTests
 using Test
 using InverseLaplace: hyperbola, hyper_fixed
 
+## test type stability
+
+@test hyperbola(s -> 1/sqrt(s), 1.0f0) isa Float32
+@test hyperbola(s -> 1/sqrt(s), 1.0) isa Float64
+@test hyperbola(s -> 1/sqrt(s), big"1.0") isa BigFloat
+
+@test hyper_fixed(s -> 1/sqrt(s), [1.0f0, 2.0f0])[1] isa Float32
+@test hyper_fixed(s -> 1/sqrt(s), [1.0, 2.0])[1] isa Float64
+@test hyper_fixed(s -> 1/sqrt(s), BigFloat.([1.0, 2.0]))[1] isa BigFloat
+
 #### F(s) = 1/sqrt(s), f(t) = 1/sqrt(π*t)
 
 t = 1.0

@@ -26,6 +26,8 @@ Bromwhich contour approaches should only be applied for t > 0. We are aiming to 
 In other words we want the Bromwhich integral to converge rapidly, and this can be done by starting and ending our integration path in the left hand plane causing exp(st) to decay.
 If t = 0, the exponential factor does not cause good convergence. If you want to evaluate for t = 0, you should try a small positive value like 1e-30.
 
+See also: [`hyper_fixed`](@ref), [`talbot`](@ref), [`talbotarr`](@ref)
+
 # Example
 
 ```jldoctest
@@ -60,42 +62,80 @@ function s(θ, N, t::T) where T
 end
 
 """
-    hyper_fixed(f::Function, t::AbstractArray; N = 24)
+    hyper_fixed(f::Function, t::AbstractVector; N::Int = 24)
 
-Evaluate the inverse Laplace transform of `f` at an array of `t` by approximating the Bromwhich integral with a fixed hyperbola contour.
+Evaluate the inverse Laplace transform of `f` over a vector `t` by approximating the Bromwhich integral with a fixed hyperbola contour.
 A real valued time-domain signal is assumed with the integral being calculated by a computable series applying the midpoint rule.
 
-In contrast to `hyperbola` where the contour is dependent on 't', here we fix the contour for the entire array of `t` values.
-This function should be considered when F(s) is complex and costly to compute where we want to minimize the number of evaulations of F(s).
-This operates under the assumption that f(t) is needed for many values of `t` over some interval `t ∈ (t1:t2)`. The parameters are now time independent.
-The angle value of the contour defaults to `ϕ = 1.09`. `ϕ` and the number of nodes `N` can be adjusted for accuracy.
+In contrast to `hyperbola` where the contour is dependent on 't', the contour is fixed over the entire vector of `t` values.
+This function should be used when F(s) is computationally expensive to minimize the number of evaulations of F(s) or when the transform
+needs to be applied over many values of `t`.
+
+It operates under the assumption that f(t) is needed for many values of `t` over some interval `t ∈ (first(t):t[end])` and t>0.
+The number of nodes `N` can be increased for accuracy, however there is an optimal N that minimizes accuracy where error increases afterwords.
 
 This approach will in general be less accurate than `hyperbola` as we are using the same contour over an array of time values, instead of an optimized contour at each time.
 Bromwhich contour approaches should only be applied for t > 0.
+
+See also: [`hyper_fixed!`](@ref), [`hyperbola`](@ref), [`talbot`](@ref), [`talbotarr`](@ref)
 
 # Example
 
 ```jldoctest
 julia> InverseLaplace.hyper_fixed(s -> 1/(s + 1), 2.0:3.0)
 2-element Vector{Float64}:
- 0.1353352832366098
- 0.04978706836781721
+ 0.13533528323660948
+ 0.0497870683678199
 """
-function hyper_fixed(f::Function, t::AbstractArray; N = 24)
-    a, sk, h = fixed_sk(f, N, t)
-    out = zeros(eltype(h), length(t))
-    Threads.@threads for ind in eachindex(t)
-        out[ind] = hyper_fixed_points(a, sk, h, t[ind])
+hyper_fixed(f::Function, t::AbstractVector{T}; N::Int = 24) where T = hyper_fixed!(zeros(T, length(t)), f, t, N = N)
+
+"""
+    hyper_fixed!(out::AbstractVector{T}, f::Function, t::AbstractVector{T}; N::Int = 24)
+
+Evalue the inverse Laplace transform of `f` over a vector of `t` using a fixed hyperbola contour.
+The result is stored in `out` which must be distinct from `t` (they cannot alias each other) and be a vector of zeros.
+
+See [`hyper_fixed`](@ref) for more details about the implementation.
+
+# Example
+
+```jldoctest
+julia> t = 1.0:0.2:2.0;
+julia> out = zeros(eltype(t), length(t));
+julia> InverseLaplace.hyper_fixed!(out, s -> 1/(s + 1), t)
+6-element Vector{Float64}:
+ 0.3678794411714416
+ 0.3011942119122033
+ 0.24659696394161384
+ 0.20189651799466898
+ 0.16529888822160033
+ 0.13533528323663216
+"""
+function hyper_fixed!(out::AbstractVector{T}, f::Function, t::AbstractVector{T}; N::Int = 24) where T
+    length(out) == length(t) || throw(DimensionMismatch("out is not equal to length of t"))
+    iszero(out) || throw(ArgumentError("out is not a vector of zeros"))
+
+    μ, h = hyper_coef(N, t)
+
+    for k in 0:N-1
+        kh = (k + 1//2) * h
+        sk = s_fixed(kh, μ)
+        dsk = ds_fixed(kh, μ)
+        a = f(sk) * dsk * h / π
+        for ind in eachindex(t)
+            out[ind] += imag(a * exp(sk * t[ind]))
+        end
     end
     return out
 end
 
-#### fixed integration path (can precompute) ####
-
 # get the fixed integration components
-function hyper_coef(N, t::AbstractArray; ϕ = 1.09)
-    A = acosh(((π - 2 * ϕ) * t[end] / t[1] + 4 * ϕ - π) / ((4 * ϕ - π) * sin(ϕ)))
-    μ = (4 * π * ϕ - π^2) * N / t[end] / A
+function hyper_coef(N, t::AbstractVector{T}) where T
+    ϕ = T(1.09)
+    a = (T(π) - 2 * ϕ) * t[end] / first(t) + 4 * ϕ - T(π)
+    a /= (4 * ϕ - π) * sin(ϕ)
+    A = acosh(a)
+    μ = (4 * T(π) * ϕ - T(π)^2) * N / t[end] / A
     h = A / N
     return μ, h
 end
@@ -103,24 +143,3 @@ end
 # compute the fixed hyperbola contour
 s_fixed(θ, μ; ϕ = 1.09) = μ + im * μ * sinh(θ + im * ϕ)
 ds_fixed(θ, μ; ϕ = 1.09) = im * μ * cosh(θ + im * ϕ)
-
-# compute the function values over the fixed contour nodes
-function fixed_sk(f::Function, N, t::AbstractArray)
-    μ, h = hyper_coef(N, t)
-    a = zeros(Complex{eltype(h)}, Int(N))
-    sk = similar(a)
-    Threads.@threads for k in 0:Int(N)-1
-        sk[k+1] = s_fixed((k + 1/2) * h, μ)
-        dsk = ds_fixed((k + 1/2) * h, μ)
-        a[k+1] = f(sk[k + 1]) * dsk
-    end
-    return a, sk, h
-end
-
-function hyper_fixed_points(a, sk, h, t::AbstractFloat)
-    b = zero(eltype(a))
-    for ind in eachindex(sk)
-        b += a[ind] * exp(sk[ind] * t)
-    end
-    return imag(b) * h / π
-end
