@@ -2,12 +2,12 @@ using InverseLaplace
 import InverseLaplace: talbot, gwr
 using Test
 
-# Fails
-# if VERSION >= v"1.7"
-#     include("jet_test.jl")
-# end
 
-#include("aqua_test.jl")
+if VERSION >= v"1.7"
+    include("jet_test.jl")
+end
+
+include("aqua_test.jl")
 include("weeks_test.jl")
 include("interface_test.jl")
 
