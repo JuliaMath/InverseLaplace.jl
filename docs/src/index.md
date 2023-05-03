@@ -5,8 +5,6 @@
 The source repository is [https://github.com/jlapeyre/InverseLaplace.jl](https://github.com/jlapeyre/InverseLaplace.jl).
 
 This package provides three algorithms for numerically inverting Laplace transforms.
-`InverseLaplace` v0.1.0 is the last version that supports Julia v0.6.
-Optimization of the Weeks method is temporarily disabled for Julia v0.7.
 
 ## Contents
 
