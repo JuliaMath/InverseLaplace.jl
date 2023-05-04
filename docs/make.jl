@@ -1,32 +1,31 @@
-
 using Documenter, InverseLaplace
 
-makedocs(
-    format = :html,
-    sitename = "InverseLaplace.jl",
-    modules = [InverseLaplace],
-    pages = [
-        "index.md"
-    ]
+makedocs(;
+         modules=[InverseLaplace],
+         format = Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
+         pages=["Home" => "index.md"],
+         repo="https://github.com/JuliaMath/InverseLaplace.jl/blob/{commit}{path}#L{line}",
+         sitename="InverseLaplace.jl",
+         authors="John Lapeyre",
 )
 
-deploydocs(
-    repo = "github.com/JuliaMath/InverseLaplace.jl.git",
-    target = "build",
-    julia  = "1.8",
-    osname = "linux",
-    deps = nothing,
-    make = nothing
-)
+deploydocs(; repo="github.com/JuliaMath/InverseLaplace.jl", push_preview=true)
 
 # using Documenter, InverseLaplace
-
 # makedocs(
-#     modules = InverseLaplace,
-# #    clean   = false,
+#     format = :html,
+#     sitename = "InverseLaplace.jl",
+#     modules = [InverseLaplace],
+#     pages = [
+#         "index.md"
+#     ]
 # )
 
-# # deploydocs(
-# #     deps = Deps.pip("pygments", "mkdocs", "mkdocs-material"),
-# #     repo = "github.com/MichaelHatherly/PrivateModules.jl.git",
-# # )
+# deploydocs(
+#     repo = "github.com/JuliaMath/InverseLaplace.jl.git",
+#     target = "build",
+#     julia  = "1.8",
+#     osname = "linux",
+#     deps = nothing,
+#     make = nothing
+# )
