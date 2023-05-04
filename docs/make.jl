@@ -3,7 +3,8 @@ using Documenter, InverseLaplace
 makedocs(;
          modules=[InverseLaplace],
          format = Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
-         pages=["Home" => "index.md"],
+#         pages=["Home" => "index.md"],
+         pages=["index.md"],
          repo="https://github.com/JuliaMath/InverseLaplace.jl/blob/{commit}{path}#L{line}",
          sitename="InverseLaplace.jl",
          authors="John Lapeyre",
