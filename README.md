@@ -2,7 +2,7 @@
 
 *Numerical inverse Laplace transform*
 
-[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://JuliaMath.github.io/InverseLaplace.jl/latest)
+[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://JuliaMath.github.io/InverseLaplace.jl/dev)
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://JuliaMath.github.io/InverseLaplace.jl/stable)
 [![Build Status](https://github.com/JuliaMath/InverseLaplace.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/JuliaMath/InverseLaplace.jl/actions/workflows/CI.yml?query=branch%3Amaster)
 [![Coverage Status](https://coveralls.io/repos/github/JuliaMath/InverseLaplace.jl/badge.svg?branch=master)](https://coveralls.io/github/JuliaMath/InverseLaplace.jl?branch=master)
