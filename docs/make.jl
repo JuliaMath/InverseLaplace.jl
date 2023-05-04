@@ -1,3 +1,4 @@
+
 using Documenter, InverseLaplace
 
 makedocs(
@@ -10,9 +11,9 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/jlapeyre/InverseLaplace.jl.git",
+    repo = "github.com/JuliaMath/InverseLaplace.jl.git",
     target = "build",
-    julia  = "0.7",
+    julia  = "1.8",
     osname = "linux",
     deps = nothing,
     make = nothing
