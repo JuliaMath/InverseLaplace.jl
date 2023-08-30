@@ -11,6 +11,7 @@ export Weeks, WeeksErr, setparameters
 export Talbot, GWR, ILT
 export TransformPair, ILtPair, abserr, iltpair_power
 export ilt, talbot, gwr
+export hyperbola, hyper_fixed
 export gaverstehfest, stehfest_coeffs
 
 abstract type AbstractILt end
@@ -155,6 +156,7 @@ include("fixed_talbot.jl")
 include("gwr.jl")
 include("weeks.jl")
 include("pairtest.jl")
+include("bromwhich_contour.jl")
 include("gaverstehfest.jl")
 
 end # module
