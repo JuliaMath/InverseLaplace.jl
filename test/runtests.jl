@@ -1,5 +1,5 @@
 using InverseLaplace
-import InverseLaplace: talbot, gwr
+import InverseLaplace: talbot, gwr, fourier_series
 using Test
 
 
@@ -20,15 +20,19 @@ end
     @test isapprox(talbot(s -> 1/s, 1), ilt(s -> 1/s, 1))
     @test isapprox(gwr(s -> 1/s, 1), 1.0)
     @test isapprox(gwr(s -> 1/s, 1.0), 1.0000000002465594)
+    @test isapprox(fourier_series(s -> 1/s, 1), 1.0)
+
     @test isapprox(talbot(s -> s/(1+s^2), 1), cos(1))
     @test isapprox(talbot(s -> 1/(1+s), 1), exp(-1))
     @test isapprox(gwr(s -> 1/(1+s), 1), exp(-1))
+    @test isapprox(fourier_series(s -> 1/(1+s), 1), exp(-1))
 end
 
 @testset "ilt wraps various" begin
     if Int != Int32 && VERSION >= v"0.5.0"
         @test isapprox(talbot(s -> 1/s^4, 1//10) * 6, 1e-3)
         @test isapprox(gwr(s -> 1/s^4, 1//10) * 6, 0.0010000012595365085; atol = 1e-9)
+        @test isapprox(fourier_series(s -> 1/s^4, 1//10) * 6, 0.001000000151275508; atol = 1e-9)
 
         # At one point, talbot returned rational with rational input. Now we convert to BigFloat
         @test isapprox(talbot.(s -> 1/s^3, [1//10, 2//10], 64), [5e-3, 2e-2]; atol = 1e-18)
@@ -38,6 +42,7 @@ end
         @test isapprox(talbot(s -> 1/s^4, 1//10) * 6, 1e-3; atol = 1e-9)
         @test isapprox(gwr(s -> 1/s^4, 1//10) * 6, 0.0010000012595365085; atol = 1e-9)
         @test isapprox(talbot.(s -> 1/s^3, [.1 .2; .3 .4] ), [0.005 0.02; 0.045 0.08]; atol = 1e-9)
+        @test isapprox(fourier_series(s -> 1/s^4, 1//10) * 6, 0.001000000151275508; atol = 1e-9)
     end
 end
 
@@ -54,6 +59,10 @@ end
     else
         @test isapprox(gwr.(s -> 1/s^3, [.1, .2]), [0.005, 0.02]; atol = 1e-7)
     end
+end
+
+@testset "broadcast fourier" begin
+    @test isapprox(fourier_series.(s -> 1/s^3, [.1, .2]), [0.005, 0.02]; atol = 1e-8)
 end
 
 @testset "check types" begin
