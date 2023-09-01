@@ -8,9 +8,9 @@ import SpecialFunctions
 export ILt, setNterms
 # export optimize, opteval # Broken at the moment
 export Weeks, WeeksErr, setparameters
-export Talbot, GWR, ILT
+export Talbot, GWR, ILT, Fourier_series
 export TransformPair, ILtPair, abserr, iltpair_power
-export ilt, talbot, gwr
+export ilt, talbot, gwr, fourier_series
 export gaverstehfest, stehfest_coeffs
 
 abstract type AbstractILt end
@@ -74,6 +74,43 @@ end
 
 const gwr_default_num_terms = 16
 GWR(Laplace_space_func::Base.Callable) = GWR(Laplace_space_func, gwr_default_num_terms)
+
+"""
+   ft::Fourier_series = Fourier_series(func::Function, m=11, L=1, A=19, nburn=38)
+
+Return `ft`, which estimates the inverse Laplace transform of `func` with
+the fourier series algorithm. `ft(t)` evaluates the transform at `t`.
+
+# Example
+
+Compute the inverse transform of the transform of `cos` at argument `pi / 2`.
+```
+julia> ft = Fourier_series(s -> s / (s^2 + 1), 16);
+
+julia> ft(pi / 2)
+-0.001
+```
+"""
+struct Fourier_series{T<:Base.Callable} <: AbstractILt
+    Laplace_space_func::T  # Laplace space function
+    m::Integer
+    L::Integer
+    A::Integer
+    nburn::Integer
+end
+
+const fourier_series_default_m = 11
+const fourier_series_default_L = 1
+const fourier_series_default_A = 19
+const fourier_series_default_nburn = 38
+Fourier_series(Laplace_space_func::Base.Callable) = Fourier_series(
+    Laplace_space_func,
+    fourier_series_default_m,
+    fourier_series_default_L,
+    fourier_series_default_A,
+    fourier_series_default_nburn
+)
+
 
 """
     ILT(function, Nterms=32)
@@ -151,10 +188,14 @@ setNterms(ailt::AbstractILt, N::Integer) = (ailt.Nterms = N)
 (ailt::GWR)(t) = gwr(ailt.Laplace_space_func, t, ailt.Nterms)
 (ailt::GWR)(t, n::Integer) = gwr(ailt.Laplace_space_func, t, n)
 
+(ailt::Fourier_series)(t) = fourier_series(ailt.Laplace_space_func, t)
+(ailt::Fourier_series)(t, m::Integer, L::Integer, A::Integer, nburn::Integer) = fourier_series(ailt.Laplace_space_func, t, m, L, A, nburn)
+
 include("fixed_talbot.jl")
 include("gwr.jl")
 include("weeks.jl")
 include("pairtest.jl")
 include("gaverstehfest.jl")
+include("fourier_series.jl")
 
 end # module
