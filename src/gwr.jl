@@ -48,7 +48,7 @@ function gwr(func, t, M)
             bi = convert(Dt, i)
             sm += binomial(big(n), big(i)) * (-1)^i * Fi[n + i]
         end
-        G0[n] = tau * SpecialFunctions.factorial(2 * bn) /   # FIXME: Do this more efficiently
+        G0[n+1] = tau * SpecialFunctions.factorial(2 * bn) /   # FIXME: Do this more efficiently
             (SpecialFunctions.factorial(bn) * SpecialFunctions.factorial(bn - 1)) * sm
     end
     Gm = zeros(Dt, M1 + 1)
